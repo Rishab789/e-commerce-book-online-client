@@ -1,0 +1,147 @@
+
+
+.main-menu-area {
+    background: #000000 none repeat scroll 0 0;
+}
+
+.menu-area ul li {
+    /* display: inline-block; */
+    /* margin-right: 10px; */
+    position: relative;
+}
+
+.menu-area ul li>a
+{
+    background: transparent none repeat scroll 0 0;
+    color: #fff;
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 25px;
+    padding: 13px 20px;
+    position: relative;
+    text-transform: uppercase;
+    z-index: 4;
+}
+
+.menu-area ul li>a i{
+    -webkit-text-stroke: 1px;
+    font-size: 10px;
+    margin-left: 10px;
+}
+
+
+
+
+.menu-area ul li:before
+ {
+    background: #f07c29 none repeat scroll 0 0;
+    bottom: 0;
+    content: "";
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: -8px;
+    transition: .5s;
+    z-index: 1;
+}
+
+
+.menu-area ul li:hover:before,
+.menu-area ul li.active:before,
+.safe-area:hover:before {
+    opacity: 1;
+}
+
+
+.menu-area ul li:hover a:before,
+.menu-area ul li.active a:before {
+    width: 220%;
+    opacity: 1;
+}
+
+.menu-area ul li a:after,
+.safe-area a:after {
+    border: 4px solid transparent;
+    content: "";
+    position: absolute;
+    right: -8px;
+    top: -8px;
+    transition: .5s;
+    border-bottom-color: #a74600;
+    border-left-color: #a74600;
+    opacity: 0;
+}
+
+.menu-area ul li:hover a:after,
+.menu-area ul li.active a:after,
+.safe-area:hover a:after {
+    opacity: 1;
+}
+
+
+.menu-area ul li .mega-menu {
+    background: #fff none repeat scroll 0 0;
+    box-shadow: 1px 2px 10px 0 rgba(0, 0, 0, 0.1);
+    padding: 30px 20px;
+    position: absolute;
+    z-index: 6;
+    width: 600px;
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: 0 0 0;
+    transition: .5s;
+    visibility: hidden;
+}
+
+.menu-area ul li:hover .mega-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: scaleY(1);
+}
+
+.menu-area ul li .mega-menu span {
+    float: left;
+    width: 25%;
+    padding-right: 20px;
+}
+
+.menu-area ul li .mega-menu span a.title {
+    border-bottom: 1px solid #e5e5e5;
+    color: #393939;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 20px;
+    margin-bottom: 12px;
+    padding-bottom: 15px;
+    text-transform: uppercase;
+}
+
+.menu-area ul li .mega-menu span a {
+    display: block;
+    color: #777;
+    font-size: 14px;
+    line-height: 30px;
+    text-transform: capitalize;
+    transition: .3s;
+    text-decoration: none;
+}
+
+.menu-area ul li .mega-menu span a:hover,
+.menu-area ul li .sub-menu ul li a:hover {
+    color: #f07c29;
+}
+
+
+
+.menu-area ul li .mega-menu span a:after {
+    display: none;
+}
+
+/* Media Query for Mobile */
+.box>div{
+    border: 1px solid black;
+    padding: 5px 10px;
+
+}

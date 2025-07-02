@@ -1,0 +1,49 @@
+/* Ensure the container hides overflow for smooth sliding */
+.review-div {
+  position: relative;
+  overflow: hidden;
+}
+
+.review-slide {
+  position: relative;
+  width: 100%;
+  transition: transform 0.5s ease-in-out;
+}
+
+/* Slide-in from right */
+.slide-in {
+  transform: translateX(100%);
+  animation: slideIn 0.5s forwards;
+}
+
+/* Slide-out to left */
+.slide-out {
+  transform: translateX(0%);
+  animation: slideOut 0.5s forwards;
+}
+
+/* Keyframes for sliding animations */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.bg-image-2 {
+  background-image: url("./../assets/reviewBanner.jpg");
+  background-size: 100%;
+  background-size: cover;
+  background-position-y: center;
+}

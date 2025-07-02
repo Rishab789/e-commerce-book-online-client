@@ -1,0 +1,51 @@
+.dot {
+  height: 12px;
+  width: 12px;
+  background-color: #f07c29;
+  border-radius: 50%;
+}
+
+.left-thread {
+  border: 1px solid #f07c29;
+  rotate: 50deg;
+  width: 2.5rem;
+  position: absolute;
+  top: 40px;
+  left: 49.5%;
+}
+
+.right-thread {
+  border: 1px solid #f07c29;
+  rotate: 130deg;
+  width: 2.5rem;
+  position: absolute;
+  top: 40px;
+  right: 49.5%;
+}
+
+.btn {
+  font-size: 1rem;
+  background-color: #fff;
+  padding: 0.5rem 2rem;
+  border-radius: 0.3rem;
+  font-weight: 700;
+  transition-duration: 0.2s;
+}
+.btn:hover {
+  color: #f07c29;
+}
+
+input{
+  /* background-color: #f07c29; */
+  color: #b00505;
+}
+
+input:focus {
+  outline: none;
+  /* background-color: #f07c29; */
+  color: black;
+}
+
+input::placeholder {
+  color: #fff;
+}
