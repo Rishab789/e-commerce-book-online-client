@@ -1,5 +1,5 @@
 import React from "react";
-import Button from "./../../../client/src/components/Button";
+import Button from "../../src/components/Button";
 
 const OrderAccount = () => {
   return (
