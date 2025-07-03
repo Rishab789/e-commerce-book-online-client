@@ -17,6 +17,7 @@ const ProductContextProvider = ({ children }) => {
 
   const getAllProducts = async () => {
     try {
+      console.log("this is the url ... ", url);
       let req = await axios.get(`${url}/api/v1/getProducts`);
 
       setAllBooks(req.data.response);

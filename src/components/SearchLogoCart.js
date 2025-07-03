@@ -4,6 +4,7 @@ import { FaSearch } from "react-icons/fa";
 import "./SearchLogoCart.css";
 import { Link } from "react-router-dom";
 import { LogInContext } from "../contexts/LogInContext";
+import logo from "../assets/novelezLogo.png";
 
 const SearchLogoCart = () => {
   const [cartLength, setCartLength] = useState(0);
@@ -29,7 +30,7 @@ const SearchLogoCart = () => {
 
   return (
     <section className="w-full">
-      <div className="flex flex-col md:flex-row lg:flex-row justify-between items-center paddingClass">
+      <div className="flex flex-col md:flex-row lg:flex-row justify-between items-center pl-10 pr-10">
         {/* search */}
         <div className="flex">
           <input
@@ -46,7 +47,8 @@ const SearchLogoCart = () => {
         {/* logo */}
         <div>
           <Link to="/">
-            <p className="text-4xl">Logo</p>
+            {/* <p className="text-4xl">Logo</p> */}
+            <img src={logo} width={200} />
           </Link>
         </div>
 
