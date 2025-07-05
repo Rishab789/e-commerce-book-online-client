@@ -36,18 +36,26 @@ const Footer = () => {
               </li>
             </div>
             <div className="flex gap-3  m-auto md:m-0">
-              <li className="">
+              {/* <li className="">
                 <FaYoutube className="icon text-2xl md:text-3xl lg:text-4xl hover:bg-white hover:text-black hover:rounded-full duration-300 hover:px-1" />
               </li>
               <li className="">
                 <FaXTwitter className="icon text-2xl md:text-3xl lg:text-4xl hover:bg-white hover:text-black hover:rounded-full duration-300 hover:px-1" />
-              </li>
-              <li className="">
+              </li> */}
+              <Link
+                className=""
+                to="https://www.facebook.com/profile.php?id=61577919128813"
+                target="_blank"
+              >
                 <FaFacebookSquare className="icon text-2xl md:text-3xl lg:text-4xl hover:bg-white hover:text-black hover:rounded-full duration-300 hover:px-1" />
-              </li>
-              <li className="">
+              </Link>
+              <Link
+                className=""
+                to="https://www.instagram.com/novelez_pb/?hl=en"
+                target="_blank"
+              >
                 <FaInstagram className="icon text-2xl md:text-3xl  lg:text-4xl hover:bg-white hover:text-black hover:rounded-full duration-300 hover:px-1" />
-              </li>
+              </Link>
             </div>
           </ul>
 
