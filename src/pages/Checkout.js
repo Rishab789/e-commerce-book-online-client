@@ -99,7 +99,7 @@ const Checkout = () => {
 
   const getSessionId = async () => {
     try {
-      let res = await axios.get(`${url}/api/v1/payemnt`);
+      let res = await axios.get(`${url}/api/v1/payment`);
       if (res.data && res.data.payment_session_id) {
         console.log("this is to check what data is coming", res.data);
         setOrderId(res.data.order_id);
