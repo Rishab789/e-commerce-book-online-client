@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import Button from "../components/Button";
 import "./Checkout.css";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
+import { load } from "@cashfreepayments/cashfree-js";
 
 const Checkout = () => {
   const location = useLocation();
   const cartItems = location.state?.cartItems || [];
   const totalPrice = location.state?.totalPrice || 0;
+  const url = process.env.REACT_APP_URL;
 
   useEffect(() => {
     console.log("Received cart items: ", cartItems);
@@ -81,6 +84,71 @@ const Checkout = () => {
 
     console.log("Final Order Payload:", orderData);
     // Make your API call here to submit `orderData`
+  };
+
+  // let cashfree;
+  // let initializeSDK = async () => {
+  //   cashfree = await load({
+  //     mode: "sandbox",
+  //   });
+  // };
+
+  // initializeSDK();
+
+  const [orderId, setOrderId] = useState("");
+
+  const getSessionId = async () => {
+    try {
+      let res = await axios.get(`${url}/api/v1/payemnt`);
+      if (res.data && res.data.payment_session_id) {
+        console.log("this is to check what data is coming", res.data);
+        setOrderId(res.data.order_id);
+        console.log("this is the session id...", res.data.payment_session_id);
+        return res.data.payment_session_id;
+      }
+    } catch (e) {}
+  };
+
+  const verifyPayment = async () => {
+    try {
+      let res = await axios.post(`${url}/api/v1/verify`, {
+        orderId: orderId,
+      });
+      if (res && res.data) {
+        alert("Payment Verified");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handlePayment = async (e) => {
+    e.preventDefault();
+
+    try {
+      // 1. Initialize Cashfree SDK here
+      const cashfree = await load({ mode: "sandbox" });
+
+      // 2. Get session ID from backend
+      const sessionId = await getSessionId();
+
+      if (!sessionId) {
+        console.error("Session ID missing or invalid");
+        return;
+      }
+
+      console.log("Using sessionId:", sessionId);
+
+      // 3. Start checkout
+      await cashfree.checkout({
+        paymentSessionId: sessionId,
+        redirectTarget: "_modal", // or "_blank" to open in new tab
+      });
+
+      verifyPayment(orderId);
+    } catch (err) {
+      console.error("Payment failed:", err);
+    }
   };
 
   return (
@@ -221,6 +289,7 @@ const Checkout = () => {
                 value="PLACE ORDER"
                 color="secondary-color"
                 className="w-full mt-10 h-10"
+                onClick={handlePayment}
               />
             </form>
           </div>
