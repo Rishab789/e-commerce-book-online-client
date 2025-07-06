@@ -1,25 +1,33 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { ProductContext } from "../contexts/ProductsContext";
+import "./carousel.css"; // Your CSS animation file
 
 const FeaturedBooks = () => {
   const [isDivHover, setDivHover] = useState(false);
   const [mainArray, setMainArray] = useState([]);
   const [onUI, setOnUI] = useState([]);
   const [animationClass, setAnimationClass] = useState("");
-  const [itemsPerPage, setItemsPerPage] = useState(8); // default to 4x2
+  const [itemsPerPage, setItemsPerPage] = useState(8);
 
+  // Touch & Mouse Drag States
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [touchEndX, setTouchEndX] = useState(null);
+  const [dragStartX, setDragStartX] = useState(null);
+  const [dragging, setDragging] = useState(false);
+
+  const minSwipeDistance = 50;
   const { allBooks } = useContext(ProductContext);
 
-  // Determine items per row based on screen width
+  // Set items per page based on screen width
   const updateItemsPerPage = () => {
     const width = window.innerWidth;
     if (width < 640) {
-      setItemsPerPage(2 * 2); // mobile: 2 items per row x 2 rows
+      setItemsPerPage(2 * 2); // 2 per row x 2 rows
     } else if (width < 1024) {
-      setItemsPerPage(3 * 2); // tablet: 3 items per row x 2 rows
+      setItemsPerPage(3 * 2); // 3 per row x 2 rows
     } else {
-      setItemsPerPage(4 * 2); // desktop: 4 items per row x 2 rows
+      setItemsPerPage(4 * 2); // 4 per row x 2 rows
     }
   };
 
@@ -39,22 +47,53 @@ const FeaturedBooks = () => {
 
     setTimeout(() => {
       let rotated = [...mainArray];
+      const shiftCount = itemsPerPage / 2;
+
       if (direction === "right") {
-        for (let i = 0; i < itemsPerPage / 2; i++) {
+        for (let i = 0; i < shiftCount; i++) {
           const first = rotated.shift();
           rotated.push(first);
         }
       } else {
-        for (let i = 0; i < itemsPerPage / 2; i++) {
+        for (let i = 0; i < shiftCount; i++) {
           const last = rotated.pop();
           rotated.unshift(last);
         }
       }
+
       setMainArray(rotated);
       setOnUI(rotated.slice(0, itemsPerPage));
       setAnimationClass("");
-    }, 300); // match with CSS animation duration
+    }, 300);
   };
+
+  // Touch swipe handlers
+  const onTouchStart = (e) => setTouchStartX(e.touches[0].clientX);
+  const onTouchMove = (e) => setTouchEndX(e.touches[0].clientX);
+  const onTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return;
+    const distance = touchStartX - touchEndX;
+    if (distance > minSwipeDistance) rotateWithAnimation("right");
+    else if (distance < -minSwipeDistance) rotateWithAnimation("left");
+    setTouchStartX(null);
+    setTouchEndX(null);
+  };
+
+  // Mouse drag handlers
+  const onMouseDown = (e) => {
+    setDragStartX(e.clientX);
+    setDragging(true);
+  };
+  const onMouseMove = (e) => {
+    if (!dragging) return;
+    const distance = dragStartX - e.clientX;
+    if (Math.abs(distance) > minSwipeDistance) {
+      if (distance > 0) rotateWithAnimation("right");
+      else rotateWithAnimation("left");
+      setDragging(false);
+    }
+  };
+  const onMouseUp = () => setDragging(false);
 
   return (
     <div
@@ -66,7 +105,13 @@ const FeaturedBooks = () => {
         <div className="text-3xl font-bold text-center">FEATURED BOOKS</div>
 
         <div
-          className={`pt-10 grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 transition-all duration-300 ease-in-out ${animationClass}`}
+          className={`pt-10 grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 transition-all duration-300 ease-in-out ${animationClass} select-none`}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
         >
           {onUI.map((book, id) => (
             <div key={id} className="flex flex-col items-center">
