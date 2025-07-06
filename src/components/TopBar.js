@@ -54,6 +54,7 @@ const TopBar = () => {
         >
           Dashboard
         </span>
+        {roles == "Admin" && <div className="separator"></div>}
         {/* <a href="/myaccount" className="hover:text-secondary-color text-sm">
           My Account
         </a> */}

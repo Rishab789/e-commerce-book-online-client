@@ -7,27 +7,24 @@ import { useDispatch, useSelector } from "react-redux";
 import Button from "./Button";
 import { addCartItems } from "../store/slices/cartSlice";
 import toast, { Toaster } from "react-hot-toast";
-import { IoMdHeartEmpty } from "react-icons/io";
-import { IoMdHeart } from "react-icons/io";
-import axios from "axios";
+import { IoMdHeartEmpty, IoMdHeart } from "react-icons/io";
 import { ProductContext } from "../contexts/ProductsContext";
 
 const TopInteresting = () => {
   const booksDetails = useSelector((state) => state.productDetails);
-
   const dispatch = useDispatch();
 
   const [isDivHover, setDivHover] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  const containerRef = useRef(null);
-
   const [favorites, setFavorites] = useState({});
-  // const [allBooks, setAllBooks] = useState([]);
+  const containerRef = useRef(null);
 
   const { allBooks, getAllProducts } = useContext(ProductContext);
 
-  const addToLocalStorage = () => {};
+  // Touch and Mouse drag swipe states
+  const [startX, setStartX] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const minSwipeDistance = 50;
 
   useEffect(() => {
     getAllProducts();
@@ -36,7 +33,7 @@ const TopInteresting = () => {
   const toggleFavorite = (id) => {
     setFavorites((prevFavorites) => ({
       ...prevFavorites,
-      [id]: !prevFavorites[id], // Toggle the favorite state for the specific item
+      [id]: !prevFavorites[id],
     }));
   };
 
@@ -52,38 +49,45 @@ const TopInteresting = () => {
 
   const handleTransitionEnd = () => {
     if (currentIndex >= booksData.length) {
-      // Disable transition and reset position to simulate seamless scrolling
       containerRef.current.style.transition = "none";
-      setCurrentIndex(0); // Reset index
+      setCurrentIndex(0);
       containerRef.current.style.transform = `translateX(0px)`;
 
-      // Re-enable transition after resetting
       setTimeout(() => {
         containerRef.current.style.transition = "transform 0.7s ease-in-out";
       });
     }
   };
 
-  // const getAllProducts = async () => {
-  //   try {
-  //     let req = await axios.get("http://localhost:4000/api/v1/getProducts");
+  // ✅ Swipe/Drag handlers for both touch and trackpad/mouse
+  const handleStart = (e) => {
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    setStartX(x);
+    setIsDragging(true);
+  };
 
-  //     setAllBooks(req.data.response);
-  //   } catch (err) {
-  //     console.log("Some Error coming while fetching!");
-  //   }
-  // };
+  const handleMove = (e) => {
+    if (!isDragging) return;
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const distance = startX - x;
 
-  // useEffect(() => {
-  //   getAllProducts();
-  // }, []);
+    if (Math.abs(distance) > minSwipeDistance) {
+      if (distance > 0) rightHandler();
+      else leftHandler();
+      setIsDragging(false);
+    }
+  };
+
+  const handleEnd = () => {
+    setIsDragging(false);
+    setStartX(null);
+  };
 
   return (
     <div>
       <section className="h-[100vh] mt-20 relative px-2">
-        <div>
-          <Toaster position="top-center" reverseOrder={false} />
-        </div>
+        <Toaster position="top-center" reverseOrder={false} />
+
         <p className="text-center text-3xl font-semibold mb-6">
           TOP INTERESTING
         </p>
@@ -91,20 +95,28 @@ const TopInteresting = () => {
           Browse the collection of our best-selling and top interesting
           products. You'll definitely find what you are looking for.
         </p>
-        {/* Main Container */}
+
         <div
           onMouseEnter={() => setDivHover(true)}
           onMouseLeave={() => setDivHover(false)}
         >
-          <div className="cursor-pointer gap-4 p-10 w-[85%]  m-auto relative overflow-hidden">
+          <div className="cursor-pointer gap-4 p-10 w-[85%] m-auto relative overflow-hidden">
             <div
-              className="flex gap-5 transition-transform duration-700 ease-in-out "
+              className="flex gap-5 transition-transform duration-700 ease-in-out select-none"
               style={{
                 transform: `translateX(-${currentIndex * 250}px)`,
               }}
               onTransitionEnd={handleTransitionEnd}
               ref={containerRef}
+              onTouchStart={handleStart}
+              onTouchMove={handleMove}
+              onTouchEnd={handleEnd}
+              onMouseDown={handleStart}
+              onMouseMove={handleMove}
+              onMouseUp={handleEnd}
+              onMouseLeave={handleEnd}
             >
+              {/* Original Books */}
               {allBooks.map(({ image, title, _id, price }) => (
                 <div key={_id} className="shrink-0 main relative">
                   <button
@@ -112,69 +124,31 @@ const TopInteresting = () => {
                     className="absolute right-9 top-1 bg-slate-100 rounded-full"
                   >
                     {favorites[_id] ? (
-                      <IoMdHeart className="text-2xl  text-red-500" />
+                      <IoMdHeart className="text-2xl text-red-500" />
                     ) : (
-                      <IoMdHeartEmpty className="text-2xl  text-black" />
+                      <IoMdHeartEmpty className="text-2xl text-black" />
                     )}
                   </button>
-                  <div className="spread absolute "></div>
+                  <div className="spread absolute"></div>
                   <Link to={`/productDetails/${_id}`}>
-                    <img
-                      src={image}
-                      alt={title}
-                      width={200}
-                      className="cursor-pointer "
-                    />
+                    <img src={image} alt={title} width={200} />
                   </Link>
-                  <div
-                    className="absolute bottom-12 right-12 flex"
-                    // onClick={() => {
-                    //   dispatch(
-                    //     addCartItems({
-                    //       productId: _id,
-                    //       image,
-                    //       title,
-                    //       _id,
-                    //       price,
-                    //     })
-                    //   );
-                    //   toast.success("Product added to cart");
-                    // }}
-                  >
+                  <div className="absolute bottom-12 right-12 flex">
                     <Button value="Buy Now" color="sign-color" />
                   </div>
-
                   <p className="text-center rufina1">{title.slice(0, 20)}</p>
                   <p className="text-center rufina1">${price}</p>
                 </div>
               ))}
 
-              {/* Duplicate images for infinite scroll effect */}
+              {/* Duplicates for infinite scroll */}
               {allBooks.map(({ image, title, _id, price }) => (
-                <div
-                  key={`duplicate-${_id}`}
-                  className="shrink-0 main relative"
-                >
-                  <div className="spread absolute "></div>
-
-                  <Link to="/productDetails/1">
+                <div key={`dup-${_id}`} className="shrink-0 main relative">
+                  <div className="spread absolute"></div>
+                  <Link to={`/productDetails/${_id}`}>
                     <img src={image} alt={title} width={200} />
                   </Link>
-                  <div
-                    className="absolute bottom-12 right-12 flex"
-                    // onClick={() => {
-                    //   dispatch(
-                    //     addCartItems({
-                    //       productId: _id,
-                    //       image,
-                    //       title,
-                    //       id,
-                    //       price,
-                    //     })
-                    //   );
-                    //   toast.success("Product added to cart");
-                    // }}
-                  >
+                  <div className="absolute bottom-12 right-12 flex">
                     <Button value="Buy Now" color="sign-color" />
                   </div>
                   <p className="text-center rufina1">{title.slice(0, 20)}</p>
@@ -183,9 +157,10 @@ const TopInteresting = () => {
               ))}
             </div>
           </div>
+
           {/* Navigation Arrows */}
           <div
-            className={`absolute top-[45%] left-0 right-0 flex justify-between items-center px-10 transition-opacity duration-500 ${
+            className={`absolute top-[55%] md:top-[55%] lg:top-[45%] left-0 right-0 flex justify-between items-center px-10 transition-opacity duration-500 ${
               isDivHover ? "opacity-100" : "opacity-0"
             }`}
           >
