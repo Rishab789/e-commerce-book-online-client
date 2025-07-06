@@ -1,0 +1,33 @@
+.bg-image-best {
+  position: relative;
+  overflow: hidden; /*Ensures the scaling background stays within the bounds*/
+   height: 400px; /* ✅ Add this */
+
+  /* margin-left: 2rem; */
+}
+
+.bg-image-best::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("./../assets/TopChoice.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position-y: 50%;
+  transition: transform 0.3s ease-in-out; /* Smooth scaling effect */
+  z-index: -1; /* Keeps it behind the content */
+}
+
+.bg-image-best:hover::before {
+  transform: scale(1.1); /* Scale only the background */
+}
+
+
+@media (min-width: 768px) {
+  .bg-image-best {
+    height: auto; /* Let it grow on larger screens */
+  }
+}

@@ -7,6 +7,10 @@ const Slider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const containerRef = useRef(null);
 
+  const minSwipeDistance = 50;
+  const [startX, setStartX] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+
   const rightHandler = () => {
     setCurrentIndex((prevIndex) => prevIndex + 1);
   };
@@ -19,43 +23,72 @@ const Slider = () => {
 
   const handleTransitionEnd = () => {
     if (currentIndex >= booksData.length) {
-      // Disable transition and reset position to simulate seamless scrolling
       containerRef.current.style.transition = "none";
-      setCurrentIndex(0); // Reset index
+      setCurrentIndex(0);
       containerRef.current.style.transform = `translateX(0px)`;
-
-      // Re-enable transition after resetting
       setTimeout(() => {
         containerRef.current.style.transition = "transform 0.7s ease-in-out";
       });
     }
   };
 
+  // ✅ Handle touch and mouse swipe
+  const handleStart = (e) => {
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    setStartX(x);
+    setIsDragging(true);
+  };
+
+  const handleMove = (e) => {
+    if (!isDragging) return;
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const distance = startX - x;
+
+    if (Math.abs(distance) > minSwipeDistance) {
+      if (distance > 0) {
+        rightHandler();
+      } else {
+        leftHandler();
+      }
+      setIsDragging(false);
+    }
+  };
+
+  const handleEnd = () => {
+    setIsDragging(false);
+    setStartX(null);
+  };
+
   return (
     <div>
-      <section className=" mt-20 relative ">
-        {/* Main Container */}
+      <section className="mt-2 relative">
         <div
           onMouseEnter={() => setDivHover(true)}
           onMouseLeave={() => setDivHover(false)}
         >
-          <div className="cursor-pointer  gap-4 p-10 w-[100%] m-auto relative overflow-hidden ">
+          <div className="cursor-pointer gap-4 p-10 w-full m-auto relative overflow-hidden">
             <div
-              className="flex  transition-transform duration-700 ease-in-out"
+              className="flex transition-transform duration-700 ease-in-out select-none"
               style={{
                 transform: `translateX(-${currentIndex * 250}px)`,
               }}
               onTransitionEnd={handleTransitionEnd}
               ref={containerRef}
+              onTouchStart={handleStart}
+              onTouchMove={handleMove}
+              onTouchEnd={handleEnd}
+              onMouseDown={handleStart}
+              onMouseMove={handleMove}
+              onMouseUp={handleEnd}
+              onMouseLeave={handleEnd}
             >
               {booksData.map((item, index) => (
                 <div key={index} className="shrink-0">
-                  <img src={item.image} alt={item.title} width={170} />
+                  <img src={item.image} alt={item.title} width={200} />
                   <p className="text-center rufina1">{item.title}</p>
                   <p className="text-center rufina1">${item.price}</p>
                 </div>
               ))}
-              {/* Duplicate images for infinite scroll effect */}
               {booksData.map((item, index) => (
                 <div key={`duplicate-${index}`} className="shrink-0">
                   <img src={item.image} alt={item.title} width={170} />
@@ -65,9 +98,10 @@ const Slider = () => {
               ))}
             </div>
           </div>
+
           {/* Navigation Arrows */}
           <div
-            className={`absolute top-[45%] left-0 right-0 flex justify-between items-center  transition-opacity duration-500 ${
+            className={`absolute top-[45%] left-0 right-0 flex justify-between items-center transition-opacity duration-500 ${
               isDivHover ? "opacity-100" : "opacity-0"
             }`}
           >

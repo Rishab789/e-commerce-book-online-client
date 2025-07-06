@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { ProductContext } from "../contexts/ProductsContext";
+import { Link } from "react-router-dom";
 
 const FeaturedBooks = () => {
   const [isDivHover, setDivHover] = useState(false);
@@ -66,6 +67,8 @@ const FeaturedBooks = () => {
     }, 300);
   };
 
+  console.log(onUI);
+
   // Touch swipe handlers
   const onTouchStart = (e) => setTouchStartX(e.touches[0].clientX);
   const onTouchMove = (e) => setTouchEndX(e.touches[0].clientX);
@@ -96,12 +99,14 @@ const FeaturedBooks = () => {
 
   return (
     <div
-      className="border-t mt-20 container relative"
+      className="border-t  container relative"
       onMouseEnter={() => setDivHover(true)}
       onMouseLeave={() => setDivHover(false)}
     >
-      <section className="pt-20">
-        <div className="text-3xl font-bold text-center">FEATURED BOOKS</div>
+      <section className="pt-1  0 ">
+        <div className="text-2xl md:text-3xl lg:text-3xl font-bold text-center">
+          FEATURED BOOKS
+        </div>
 
         <div
           className={`pt-10 grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 transition-all duration-300 ease-in-out ${animationClass} select-none`}
@@ -114,7 +119,9 @@ const FeaturedBooks = () => {
         >
           {onUI.map((book, id) => (
             <div key={id} className="flex flex-col items-center">
-              <img src={book.image} alt={book.title} width={180} />
+              <Link to={`/productDetails/${book._id}`}>
+                <img src={book.image} alt={book.title} width={180} />
+              </Link>
               <p className="text-center rufina1">{book.title}</p>
               <p className="text-center rufina1">${book.price}</p>
             </div>
