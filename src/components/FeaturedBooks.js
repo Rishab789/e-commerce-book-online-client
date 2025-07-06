@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { ProductContext } from "../contexts/ProductsContext";
-import "./carousel.css"; // Your CSS animation file
 
 const FeaturedBooks = () => {
   const [isDivHover, setDivHover] = useState(false);
