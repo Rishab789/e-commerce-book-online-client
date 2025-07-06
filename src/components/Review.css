@@ -1,25 +1,25 @@
 /* Ensure the container hides overflow for smooth sliding */
-.review-div {
+/* .review-div {
   position: relative;
   overflow: hidden;
-}
+} */
 
 .review-slide {
   position: relative;
   width: 100%;
-  transition: transform 0.5s ease-in-out;
+  transition: transform 1s ease-in-out;
 }
 
 /* Slide-in from right */
 .slide-in {
   transform: translateX(100%);
-  animation: slideIn 0.5s forwards;
+  animation: slideIn 1s forwards;
 }
 
 /* Slide-out to left */
 .slide-out {
   transform: translateX(0%);
-  animation: slideOut 0.5s forwards;
+  animation: slideOut 1s forwards;
 }
 
 /* Keyframes for sliding animations */

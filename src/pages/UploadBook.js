@@ -45,6 +45,7 @@ const UploadBook = () => {
         setLoading(false);
       } else {
         toast.error(data.message);
+        setLoading(false);
         // Handle signup failure
       }
     } catch (e) {

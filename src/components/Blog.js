@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { blogsData } from "../services/blogsData";
+import { Link } from "react-router-dom";
 
 const Blog = () => {
   const [isDivHover, setDivHover] = useState(false);
@@ -32,7 +33,7 @@ const Blog = () => {
   };
 
   return (
-    <div className=" relative bg-red-400">
+    <div className=" relative ">
       <section className="pt-20">
         <div className="text-xl sm:text-2xl md:text-3xl font-bold text-center ">
           LATEST FROM OUR BLOGS
@@ -51,26 +52,31 @@ const Blog = () => {
               ref={containerRef}
             >
               {blogsData.map((item, index) => (
-                <div key={index} className="shrink-0 relative overflow-hidden ">
+                <Link to={`/blogs/${index + 1}`}>
                   <div
-                    className="absolute left-2 top-2 h-12 bg-white w-12 flex justify-center items-center flex-col z-10
-                  "
+                    key={index}
+                    className="shrink-0 relative overflow-hidden "
                   >
-                    <p className="text-xl">06</p>
-                    <p>DEC</p>
+                    <div
+                      className="absolute left-2 top-2 h-12 bg-white w-12 flex justify-center items-center flex-col z-10
+                  "
+                    >
+                      <p className="text-xl">06</p>
+                      <p>DEC</p>
+                    </div>
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      width={300}
+                      className="hover:scale-105 duration-300"
+                    />
+                    <p className="text-center rufina1 text-xl">{item.title}</p>
+                    <p className="text-center  text-lg">{item.author}</p>
+                    <p className="text-center rufina1 text-sm w-64  m-auto">
+                      {item.content}
+                    </p>
                   </div>
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    width={300}
-                    className="hover:scale-105 duration-300"
-                  />
-                  <p className="text-center rufina1 text-xl">{item.title}</p>
-                  <p className="text-center  text-lg">{item.author}</p>
-                  <p className="text-center rufina1 text-sm w-64  m-auto">
-                    {item.content}
-                  </p>
-                </div>
+                </Link>
               ))}
               {/* Duplicate images for infinite scroll effect */}
               {blogsData.map((item, index) => (

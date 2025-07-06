@@ -24,23 +24,28 @@ const Review = () => {
   return (
     <div className="mt-20  relative">
       <div className="h-[60vh] bg-black opacity-70 w-full z-10 absolute"></div>
-      <section className=" h-[60vh] review-div flex flex-col items-center gap-10 bg-image-2">
-        <div
-          className={`border mt-10 border-white rounded-full h-20 w-20 flex justify-center items-center absolute z-20`}
-        >
-          <FaQuoteRight
-            style={{
-              fontSize: "40px",
-              color: "white",
-            }}
-          />
-        </div>
-        <div className="text-center  overflow-hidden w-full absolute z-30 top-[50%]">
-          <div className={`review-slide ${slideAnimation}`} key={currentIndex}>
-            <p className="text-xl font-semibold text-white">
-              {reviews[currentIndex].text}
-            </p>
-            <p className="mt-2 text-white">{reviews[currentIndex].user}</p>
+      <section className=" h-[60vh]    bg-image-2">
+        <div className="text-center overflow-hidden   w-full absolute z-30 ">
+          <div
+            className={`review-slide ${slideAnimation} flex flex-col gap-10 justify-center items-center`}
+            key={currentIndex}
+          >
+            <div
+              className={`  border mt-10 border-white rounded-full h-20 w-20 flex justify-center items-center  z-20`}
+            >
+              <FaQuoteRight
+                style={{
+                  fontSize: "40px",
+                  color: "white",
+                }}
+              />
+            </div>
+            <div>
+              <p className="text-xl font-semibold text-white">
+                {reviews[currentIndex].text}
+              </p>
+              <p className="mt-2 text-white">{reviews[currentIndex].user}</p>
+            </div>
           </div>
         </div>
       </section>

@@ -1,111 +1,100 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-// import { booksData } from "../services/booksData";
+import React, { useContext, useEffect, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import axios from "axios";
 import { ProductContext } from "../contexts/ProductsContext";
+import "./carousel.css"; // Your animation CSS
 
 const FeaturedBooks = () => {
   const [isDivHover, setDivHover] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [mainArray, setMainArray] = useState([]);
+  const [onUI, setOnUI] = useState([]);
+  const [animationClass, setAnimationClass] = useState("");
+  const [itemsPerPage, setItemsPerPage] = useState(8); // default to 4x2
 
-  const itemsPerPage = 8;
+  const { allBooks } = useContext(ProductContext);
 
-  // const totalGroups = Math.ceil(booksData.length / itemsPerPage);
-  const { allBooks, getAllProducts } = useContext(ProductContext);
-
-  // const [allBooks, setAllBooks] = useState([]);  // this has been changed
-
-  const rightHandler = () => {
-    if (currentIndex < totalGroups - 1) {
-      setCurrentIndex((prevIndex) => prevIndex + 1);
+  // Determine items per row based on screen width
+  const updateItemsPerPage = () => {
+    const width = window.innerWidth;
+    if (width < 640) {
+      setItemsPerPage(2 * 2); // mobile: 2 items per row x 2 rows
+    } else if (width < 1024) {
+      setItemsPerPage(3 * 2); // tablet: 3 items per row x 2 rows
+    } else {
+      setItemsPerPage(4 * 2); // desktop: 4 items per row x 2 rows
     }
   };
 
-  const leftHandler = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prevIndex) => prevIndex - 1);
-    }
+  useEffect(() => {
+    updateItemsPerPage();
+    window.addEventListener("resize", updateItemsPerPage);
+    return () => window.removeEventListener("resize", updateItemsPerPage);
+  }, []);
+
+  useEffect(() => {
+    setMainArray(allBooks);
+    setOnUI(allBooks.slice(0, itemsPerPage));
+  }, [allBooks, itemsPerPage]);
+
+  const rotateWithAnimation = (direction) => {
+    setAnimationClass(direction === "right" ? "slide-left" : "slide-right");
+
+    setTimeout(() => {
+      let rotated = [...mainArray];
+      if (direction === "right") {
+        for (let i = 0; i < itemsPerPage / 2; i++) {
+          const first = rotated.shift();
+          rotated.push(first);
+        }
+      } else {
+        for (let i = 0; i < itemsPerPage / 2; i++) {
+          const last = rotated.pop();
+          rotated.unshift(last);
+        }
+      }
+      setMainArray(rotated);
+      setOnUI(rotated.slice(0, itemsPerPage));
+      setAnimationClass("");
+    }, 300); // match with CSS animation duration
   };
-
-  const chunkArray = (array, size) => {
-    const result = [];
-    for (let i = 0; i < array.length; i += size) {
-      result.push(array.slice(i, i + size));
-    }
-    return result;
-  };
-
-  // const getAllProducts = async () => {   // AND THIS HAS BEEN COMMENTED OUT
-  //   try {
-  //     let req = await axios.get("http://localhost:4000/api/v1/getProducts");
-
-  //     setAllBooks(req.data.response);
-  //   } catch (err) {
-  //     console.log("Some Error coming while fetching!");
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   getAllProducts();
-  // }, []);
-
-  const productGroups = chunkArray(allBooks, itemsPerPage);
-  // const productGroups = chunkArray(booksData, itemsPerPage);
-  const totalGroups = Math.ceil(allBooks.length / itemsPerPage);
 
   return (
     <div
-      className="border-t mt-20 container relative "
+      className="border-t mt-20 container relative"
       onMouseEnter={() => setDivHover(true)}
       onMouseLeave={() => setDivHover(false)}
     >
-      <section className="pt-20 ">
-        <div className="text-3xl font-bold text-center ">FEATURED BOOKS</div>
-        <div className="">
-          <div className="overflow-hidden">
-            <div
-              className="flex pt-10 transition-transform duration-1000 ease-in-out"
-              style={{
-                transform: `translateX(-${currentIndex * 100}%)`,
-              }}
-            >
-              {productGroups.map((group, id) => (
-                <div
-                  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 min-w-full"
-                  key={id}
-                >
-                  {group.map((item, index) => (
-                    <div key={index} className="shrink-0">
-                      <img src={item.image} alt={item.title} width={250} />
-                      <p className="text-center rufina1">{item.title}</p>
-                      <p className="text-center rufina1">${item.price}</p>
-                    </div>
-                  ))}
-                </div>
-              ))}
+      <section className="pt-20">
+        <div className="text-3xl font-bold text-center">FEATURED BOOKS</div>
+
+        <div
+          className={`pt-10 grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 transition-all duration-300 ease-in-out ${animationClass}`}
+        >
+          {onUI.map((book, id) => (
+            <div key={id} className="flex flex-col items-center">
+              <img src={book.image} alt={book.title} width={180} />
+              <p className="text-center rufina1">{book.title}</p>
+              <p className="text-center rufina1">${book.price}</p>
             </div>
-          </div>
+          ))}
         </div>
 
-        {/* Navigation arrows  */}
-        <div className="">
+        {/* Navigation arrows */}
+        <div
+          className={`absolute top-[45%] left-0 right-0 flex justify-between items-center px-10 transition-opacity duration-500 ${
+            isDivHover ? "opacity-100" : "opacity-0"
+          }`}
+        >
           <div
-            className={`absolute top-[45%] left-0 right-0 flex justify-between items-center px-10 transition-opacity duration-500 ${
-              isDivHover ? "opacity-100" : "opacity-0"
-            }`}
+            className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
+            onClick={() => rotateWithAnimation("left")}
           >
-            <div
-              className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
-              onClick={leftHandler}
-            >
-              <FaChevronLeft style={{ fontSize: 40 }} />
-            </div>
-            <div
-              className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
-              onClick={rightHandler}
-            >
-              <FaChevronRight style={{ fontSize: 40 }} />
-            </div>
+            <FaChevronLeft style={{ fontSize: 40 }} />
+          </div>
+          <div
+            className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
+            onClick={() => rotateWithAnimation("right")}
+          >
+            <FaChevronRight style={{ fontSize: 40 }} />
           </div>
         </div>
       </section>
