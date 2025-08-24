@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-
 import { FaChevronLeft } from "react-icons/fa";
 import { FaChevronRight } from "react-icons/fa";
 import "./Carousel.css";
 
 const Carousel = ({ data }) => {
+  console.log("this is the dta", data);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const onRightClick = () => {
@@ -18,48 +18,73 @@ const Carousel = ({ data }) => {
   };
 
   return (
-    <div className="overflow-hidden h-[400px] sm:h-[500px] md:h-[650px] lg:h-screen bg-green-200 w-full ">
+    <div className="overflow-hidde w-full relative">
       <div
-        className="flex transition-transform duration-1000 ease-in-out "
+        className="flex transition-transform duration-1000 ease-in-out w-full"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
-        {/* {data.map((item, index) => {
-          return <img src={item.src} alt={item.alt} key={index} />;
-        })} */}
+        {data.map((item, index) => {
+          return (
+            <div
+              key={index}
+              className="flex-shrink-0 w-full h-[300px] md:h-[550px] lg:h-[650px]"
+              style={{
+                backgroundImage: `url(${item.src})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundPosition: "85% center",
+              }}
+            ></div>
+          );
+        })}
       </div>
+
       {/* conditional index  */}
       {currentIndex == 0 && (
-        <div className="absolute left-20 top-[25%]  flex flex-col  items-center">
-          <p className="rufina1 text-3xl sm:text-5xl md:text-7xl mb-3 text-white first_title_animation">
-            Huge Sale
-          </p>
-          <p className="rufina2 text-2xl sm:text-4xl md:text-8xl mb-3 second_title_animation">
-            Koparion
-          </p>
-          <p className="rufina1 text-xl md:text-2xl mb-10 third_title_animation">
-            Now Starting at $99.00
-          </p>
-          <button className="btn btn_animation bg-red-400">Shop now</button>
-        </div>
+        <>
+          <div className="absolute left-20 top-[25%]  flex flex-col  items-center">
+            <div className="hidden md:block lg:block">
+              <p className="rufina1 text-3xl sm:text-5xl md:text-7xl mb-3 text-white first_title_animation">
+                Stories That
+              </p>
+              <p className="rufina2 text-2xl sm:text-4xl md:text-8xl mb-3 second_title_animation">
+                Inspire You
+              </p>
+            </div>
+          </div>
+          <div className="  absolute bottom-10 md:bottom-32  lg:bottom-52 w-full flex justify-center md:justify-start lg:justify-start">
+            <button className="btn btn_animation bg-red-400 hover:text-white md:ml-36 lg:ml-36 ">
+              Shop now
+            </button>
+          </div>
+        </>
       )}
       {currentIndex == 1 && (
-        <div className="absolute left-20 top-[25%]  flex flex-col items-center">
-          <p className="rufina1 text-xl md:text-7xl mb-3 text-black first_title_animation">
-            We can help get your
-          </p>
-          <p className="rufina2 text-4xl md:text-8xl mb-3 second_title_animation">
-            Books in Order
-          </p>
-          <p className="rufina1 text-xl md:text-2xl mb-10 third_title_animation">
-            and Accessories
-          </p>
-          <button className="btn btn_animation">Contact Us Today!</button>
-        </div>
+        <>
+          <div className="absolute left-1 top-[25%]  flex flex-col items-center">
+            <div className="hidden md:block lg:block">
+              <p className="rufina1 text-xl md:text-7xl mb-3 text-black first_title_animation">
+                We can help get your
+              </p>
+              <p className="rufina2 text-4xl text-[#f0932b] md:text-7xl mb-3 second_title_animation">
+                Books in Order
+              </p>
+              <p className="rufina1 text-xl md:text-2xl mb-10 third_title_animation">
+                and Accessories
+              </p>
+            </div>
+          </div>
+          <div className=" absolute bottom-10 md:bottom-32 lg:bottom-52 w-full flex justify-center md:justify-start lg:justify-start">
+            <button className="btn btn_animation md:ml-36 lg:ml-36 ">
+              Contact Us Today!
+            </button>
+          </div>
+        </>
       )}
       <div className="flex justify-between pl-5 pr-5 ">
         <FaChevronLeft
+          className="text-3xl md:text-4xl lg:text-4xl"
           style={{
-            fontSize: 45,
             position: "absolute",
             top: "50%",
             left: 20,
@@ -68,8 +93,8 @@ const Carousel = ({ data }) => {
           onClick={onLeftClick}
         />
         <FaChevronRight
+          className="text-3xl md:text-4xl lg:text-4xl"
           style={{
-            fontSize: 45,
             position: "absolute",
             top: "50%",
             right: 20,

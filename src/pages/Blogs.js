@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { blogsData } from "../services/blogsData";
+import { BlogsContext } from "../contexts/blogs.context";
 
 const Blogs = () => {
+  const { blogs } = useContext(BlogsContext);
+
   return (
     <div>
       <div>
@@ -13,23 +16,23 @@ const Blogs = () => {
             </p>
             <div className="">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5  mb-10 px-3 sm:px-5 md:px-5 lg:px-5">
-                {blogsData.map((item, id) => (
-                  <Link to={`/blogs/${id + 1}`}>
+                {blogs.map((item, index) => (
+                  <Link to={`/blogs/${item._id}`}>
                     <div
-                      key={id}
+                      key={index}
                       className="border border-orange-300 rounded-md overflow-hidden"
                     >
                       <div className="overflow-hidden ">
                         <img
-                          src={item.image}
+                          src={item.cover}
                           className="hover:scale-110 duration-200 "
                         />
                       </div>
                       <div className=" px-3 bg-[#222222] text-white">
                         <p className="py-3 rufina1 text-2xl">{item.title}</p>
                         <div className="flex justify-between rufina1 pb-3">
-                          <p>{item.author}</p>
-                          <p>{item.date}</p>
+                          {/* <p>{item.author}</p>
+                          <p>{item.date}</p> */}
                         </div>
                       </div>
                     </div>

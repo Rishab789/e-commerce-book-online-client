@@ -56,8 +56,8 @@
 }
 
 .btn_animation {
-  animation: btn 1.1s cubic-bezier(0.25, 1.5, 0.5, 1);
-  animation-delay: 1.2s;
+  animation: btn 1.1s ease-in-out;
+  animation-delay: 1s;
   opacity: 0;
   animation-fill-mode: forwards;
 }
@@ -74,4 +74,14 @@
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+
+.btn_position{
+  position: relative;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  
 }

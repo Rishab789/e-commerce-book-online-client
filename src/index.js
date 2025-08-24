@@ -34,6 +34,8 @@ import AreYouSure from "./modals/AreYouSure";
 import ProductContextProvider from "./contexts/ProductsContext";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import Orders from "./pages/Orders";
+import BooksCategories from "./components/BooksCategories";
+import BlogsContextProvider from "./contexts/blogs.context";
 
 const root = createRoot(document.getElementById("root"));
 
@@ -45,7 +47,9 @@ const appRouter = createBrowserRouter([
         <LoadingProvider>
           <LoginConextProvider>
             <ProductContextProvider>
-              <App />
+              <BlogsContextProvider>
+                <App />
+              </BlogsContextProvider>
             </ProductContextProvider>
           </LoginConextProvider>
         </LoadingProvider>
@@ -99,6 +103,10 @@ const appRouter = createBrowserRouter([
       {
         path: "/checkout",
         element: <Checkout />,
+      },
+      {
+        path: "/category",
+        element: <BooksCategories />,
       },
       {
         path: "/myaccount",

@@ -24,7 +24,7 @@ const Header = () => {
     <section>
       {isDesktop ? (
         <>
-          <div className="main-menu-area sticky sticky-header-1 ">
+          <div className="main-menu-area sticky sticky-header-1  z-10">
             <div className="menu-area">
               <nav>
                 <ul className="text-white flex justify-center gap-16 ">
@@ -45,28 +45,30 @@ const Header = () => {
                     {/* Dropdown menu  */}
                     <div className="mega-menu">
                       <span>
-                        <a href="#">Comics</a>
+                        <p className="category-title">Comics</p>
+                        <Link to="/category?category=fiction">Fiction</Link>
+                        <a href="#">title 1</a>
+                        <a href="#">title 1</a>
+                        <a href="#">title 1</a>
+                      </span>
+                      <span>
+                        <p className="category-title">Marvel</p>
+                        <Link to="/category?category=nonfiction">
+                          Non Fiction
+                        </Link>
+                        <a href="#">title 1</a>
+                        <a href="#">title 1</a>
+                        <a href="#">title 1</a>
+                      </span>
+                      <span>
+                        <p className="category-title">Super Hero</p>
                         <a href="#">title 1</a>
                         <a href="#">title 1</a>
                         <a href="#">title 1</a>
                         <a href="#">title 1</a>
                       </span>
                       <span>
-                        <a href="#">Marvel</a>
-                        <a href="#">title 1</a>
-                        <a href="#">title 1</a>
-                        <a href="#">title 1</a>
-                        <a href="#">title 1</a>
-                      </span>
-                      <span>
-                        <a href="#">Super Hero</a>
-                        <a href="#">title 1</a>
-                        <a href="#">title 1</a>
-                        <a href="#">title 1</a>
-                        <a href="#">title 1</a>
-                      </span>
-                      <span>
-                        <a href="#">Adventure</a>
+                        <p className="category-title">Adventure</p>
                         <a href="#">title 1</a>
                         <a href="#">title 1</a>
                         <a href="#">title 1</a>
