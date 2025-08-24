@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { blogsData } from "../services/blogsData";
 import { Link } from "react-router-dom";
+import { BlogsContext } from "../contexts/blogs.context";
 
 const Blog = () => {
   const [isDivHover, setDivHover] = useState(false);
@@ -12,6 +13,8 @@ const Blog = () => {
   const [startX, setStartX] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const swipeThreshold = 50;
+
+  const { blogs } = useContext(BlogsContext);
 
   useEffect(() => {
     const handleResize = () => {
@@ -98,7 +101,7 @@ const Blog = () => {
               onMouseUp={handleEnd}
               onMouseLeave={handleEnd}
             >
-              {blogsData.map((item, index) => (
+              {blogs.map((item, index) => (
                 <Link to={`/blogs/${index + 1}`} key={index}>
                   <div className="shrink-0 relative overflow-hidden">
                     <div className="absolute left-2 top-2 h-12 bg-white w-12 flex justify-center items-center flex-col z-10">
@@ -106,21 +109,21 @@ const Blog = () => {
                       <p>DEC</p>
                     </div>
                     <img
-                      src={item.image}
+                      src={item.cover}
                       alt={item.title}
                       width={300}
                       className="hover:scale-105 duration-300"
                     />
                     <p className="text-center rufina1 text-xl">{item.title}</p>
-                    <p className="text-center text-lg">{item.author}</p>
+                    {/* <p className="text-center text-lg">{item.author}</p> */}
                     <p className="text-center rufina1 text-sm w-64 m-auto">
-                      {item.content}
+                      {item.desc}
                     </p>
                   </div>
                 </Link>
               ))}
               {/* Duplicate for infinite scroll */}
-              {blogsData.map((item, index) => (
+              {blogs.map((item, index) => (
                 <div
                   key={`duplicate-${index}`}
                   className="shrink-0 relative overflow-hidden"
@@ -130,7 +133,7 @@ const Blog = () => {
                     <p>DEC</p>
                   </div>
                   <img
-                    src={item.image}
+                    src={item.cover}
                     alt={item.title}
                     width={300}
                     className="hover:scale-105 duration-300"
