@@ -16,7 +16,7 @@ const AreYouSure = (props) => {
   return (
     // <div className={`flex justify-center items-center bg-red-200 `}>
     <div
-      className={`border border-black rounded-lg w-1/3 h-48  text-center  flex justify-center items-center ${className} bg-[#ecf0f1]`}
+      className={`border border-black rounded-lg w-[65%] md:w-1/3 lg:w-1/3 h-48  text-center  flex justify-center items-center ${className} bg-[#ecf0f1]`}
     >
       <div className="w-full">
         <p

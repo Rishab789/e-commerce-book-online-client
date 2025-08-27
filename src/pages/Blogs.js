@@ -5,6 +5,7 @@ import { BlogsContext } from "../contexts/blogs.context";
 
 const Blogs = () => {
   const { blogs } = useContext(BlogsContext);
+  console.log("this is the blogs data ", blogs);
 
   return (
     <div>

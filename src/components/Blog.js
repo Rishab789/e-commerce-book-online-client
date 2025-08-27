@@ -102,7 +102,7 @@ const Blog = () => {
               onMouseLeave={handleEnd}
             >
               {blogs.map((item, index) => (
-                <Link to={`/blogs/${index + 1}`} key={index}>
+                <Link to={`/blogs/${item._id}`} key={index}>
                   <div className="shrink-0 relative overflow-hidden">
                     <div className="absolute left-2 top-2 h-12 bg-white w-12 flex justify-center items-center flex-col z-10">
                       <p className="text-xl">06</p>
@@ -117,7 +117,7 @@ const Blog = () => {
                     <p className="text-center rufina1 text-xl">{item.title}</p>
                     {/* <p className="text-center text-lg">{item.author}</p> */}
                     <p className="text-center rufina1 text-sm w-64 m-auto">
-                      {item.desc}
+                      {item.desc.slice(0, 20)}...
                     </p>
                   </div>
                 </Link>

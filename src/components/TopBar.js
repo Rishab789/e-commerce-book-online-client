@@ -5,7 +5,7 @@ import { jwtDecode } from "jwt-decode"; // Install jwt-decode library to parse J
 import toast, { Toaster } from "react-hot-toast";
 import user from "./../assets/dashboardAssets/user.png";
 
-const TopBar = () => {
+const TopBar = ({ onLogoutClick }) => {
   const { auth, logout } = useContext(LogInContext); // Use context
   const navigate = useNavigate();
   const [roles, setRole] = useState(null);
@@ -59,15 +59,20 @@ const TopBar = () => {
           My Account
         </a> */}
         {/* <div className="separator"></div> */}
-        <a href="/checkout" className="hover:text-secondary-color text-sm">
+        <a
+          href="/checkout"
+          className={`hover:text-secondary-color text-sm ${
+            auth?.token ? "block" : "hidden"
+          }`}
+        >
           checkout
         </a>
-        <div className="separator"></div>
+        <div className={`separator ${auth?.token ? "block" : "hidden"}`}></div>
         {/* <Link to="/signin" className="hover:text-secondary-color text-sm"> */}
         {auth.isLoggedIn ? (
           <span
             onClick={() => {
-              logout(); // Call the logout function
+              onLogoutClick(); // Call the logout function
               // Add another action here
               setRole(null);
             }} // Call logout on click
@@ -80,9 +85,14 @@ const TopBar = () => {
             Log in
           </Link>
         )}
-        <div className="separator"></div>
+        <div className={`separator ${auth?.token ? "block" : "hidden"}`}></div>
 
-        <a href="/myaccount" className="hover:text-secondary-color text-sm">
+        <a
+          href="/myaccount"
+          className={`hover:text-secondary-color text-sm ${
+            auth?.token ? "block" : "hidden"
+          }`}
+        >
           <img src={user} width={20} />
         </a>
       </div>

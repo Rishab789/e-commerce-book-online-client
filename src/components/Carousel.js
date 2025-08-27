@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaChevronLeft } from "react-icons/fa";
 import { FaChevronRight } from "react-icons/fa";
 import "./Carousel.css";
+import { Link } from "react-router-dom";
 
 const Carousel = ({ data }) => {
   console.log("this is the dta", data);
@@ -75,9 +76,11 @@ const Carousel = ({ data }) => {
             </div>
           </div>
           <div className=" absolute bottom-10 md:bottom-32 lg:bottom-52 w-full flex justify-center md:justify-start lg:justify-start">
-            <button className="btn btn_animation md:ml-36 lg:ml-36 ">
-              Contact Us Today!
-            </button>
+            <Link to="/contact">
+              <button className="btn btn_animation md:ml-36 lg:ml-36 ">
+                Contact Us Today!
+              </button>
+            </Link>
           </div>
         </>
       )}

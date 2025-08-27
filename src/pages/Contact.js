@@ -28,11 +28,11 @@ function Contact() {
               <div className="flex items-center gap-2 border-b-[1px]">
                 <FaLocationDot />
 
-                <p>Address: Your Address goes here</p>
+                <p>Address: New Town, Kolkata</p>
               </div>
               <div className="flex items-center gap-2 border-b-[1px]">
                 <FaPhoneAlt />
-                <p>Phone: +917008716985</p>
+                <p>Phone: +(91)7008716985</p>
               </div>
               <div className="flex items-center gap-2 border-b-[1px]">
                 <MdAlternateEmail />
