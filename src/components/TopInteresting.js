@@ -109,7 +109,7 @@ const TopInteresting = () => {
             <div
               className="flex gap-5 transition-transform duration-700 ease-in-out select-none"
               style={{
-                transform: `translateX(-${currentIndex * 250}px)`,
+                transform: `translateX(-${currentIndex * 220}px)`,
               }}
               onTransitionEnd={handleTransitionEnd}
               ref={containerRef}
