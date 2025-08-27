@@ -1,5 +1,4 @@
 import React from "react";
-
 import Info from "../components/Info";
 import Hero from "../components/Hero";
 import TopInteresting from "../components/TopInteresting";
@@ -9,6 +8,7 @@ import FeaturedBooks from "../components/FeaturedBooks";
 import Newsletter from "../components/Newsletter";
 import Review from "../components/Review";
 import Blog from "../components/Blog";
+import AreYouSure from "../modals/AreYouSure";
 
 const Home = () => {
   return (

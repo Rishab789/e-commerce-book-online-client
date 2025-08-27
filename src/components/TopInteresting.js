@@ -97,7 +97,7 @@ const TopInteresting = () => {
           Browse the collection of our best-selling and top interesting
           products. You'll definitely find what you are looking for.
         </p>
-        <div className=" flex justify-center absolute z-10 left-[40%] top-32">
+        <div className=" flex justify-center absolute z-10 left-[40%] top-32 md:hidden lg:hidden">
           <Lottie animationData={loading} loop={true} className="w-20 h-20" />
         </div>
 

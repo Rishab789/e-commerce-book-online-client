@@ -18,11 +18,11 @@ export const contact = [
   {
     icon: money,
     title: "Cash on delivery",
-    subTitle: "Lorem ipsum dolor consect",
+    subTitle: "Available",
   },
   {
     icon: call,
     title: "Help & Support",
-    subTitle: "Call us : + 0123.4567.89",
+    subTitle: "Call us : +(91)7008716985",
   },
 ];

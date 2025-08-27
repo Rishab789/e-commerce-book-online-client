@@ -9,7 +9,6 @@ const BlogDetails = () => {
   const { blogs } = useContext(BlogsContext);
 
   const blogDetails = blogs.find((item) => item._id == id);
-  console.log(blogDetails);
 
   const htmlContent = blogDetails.content;
   return (

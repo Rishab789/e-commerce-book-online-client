@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
 import Cookies from "js-cookie"; // Install js-cookie library for easy cookie handling
+import { useNavigate } from "react-router-dom";
 export const LogInContext = createContext();
 
 // import { jwt } from "jsonwebtoken";
@@ -12,6 +13,8 @@ export function LoginConextProvider({ children }) {
     token: null,
   });
   const [userId, setUserId] = useState(null);
+
+  const navigate = useNavigate();
 
   // Load token from cookies on initial render
   // useEffect(() => {
@@ -80,6 +83,9 @@ export function LoginConextProvider({ children }) {
       isLoggedIn: false,
       token: null,
     });
+    navigate("/");
+    window.location.reload();
+
     // localStorage.removeItem(`cart_${userId}`);
   };
 
