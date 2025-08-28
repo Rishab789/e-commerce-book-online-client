@@ -49,7 +49,7 @@ const TopBar = ({ onLogoutClick }) => {
         <span
           onClick={handleDashboardClick}
           className={`hover:text-secondary-color text-sm cursor-pointer ${
-            roles ? "visible" : "hidden"
+            roles == "Admin" ? "visible" : "hidden"
           }`}
         >
           Dashboard
@@ -59,22 +59,18 @@ const TopBar = ({ onLogoutClick }) => {
           My Account
         </a> */}
         {/* <div className="separator"></div> */}
-        <a
-          href="/checkout"
-          className={`hover:text-secondary-color text-sm ${
-            auth?.token ? "block" : "hidden"
-          }`}
-        >
-          checkout
+        <a href="/checkout" className={`hover:text-secondary-color text-sm `}>
+          Checkout
         </a>
-        <div className={`separator ${auth?.token ? "block" : "hidden"}`}></div>
+        <div className="separator "></div>
         {/* <Link to="/signin" className="hover:text-secondary-color text-sm"> */}
         {auth.isLoggedIn ? (
           <span
             onClick={() => {
-              onLogoutClick(); // Call the logout function
-              // Add another action here
-              setRole(null);
+              console.log("button clicked");
+              onLogoutClick();
+
+              // setRole(null);
             }} // Call logout on click
             className="hover:text-secondary-color text-sm cursor-pointer"
           >
@@ -85,14 +81,9 @@ const TopBar = ({ onLogoutClick }) => {
             Log in
           </Link>
         )}
-        <div className={`separator ${auth?.token ? "block" : "hidden"}`}></div>
+        <div className={`separator`}></div>
 
-        <a
-          href="/myaccount"
-          className={`hover:text-secondary-color text-sm ${
-            auth?.token ? "block" : "hidden"
-          }`}
-        >
+        <a href="/myaccount" className={`hover:text-secondary-color text-sm `}>
           <img src={user} width={20} />
         </a>
       </div>

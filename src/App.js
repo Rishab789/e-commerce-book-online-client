@@ -27,13 +27,11 @@ const App = () => {
       </div>
 
       <div className={`${isLogOut ? "blur-sm" : "blur-0"}`}>
-        {/* <LoginConextProvider> */}
         <TopBar onLogoutClick={logOuthandler} />
         <SearchLogoCart />
         <Header />
         <Outlet />
         <Footer />
-        {/* </LoginConextProvider> */}
       </div>
     </div>
   );
