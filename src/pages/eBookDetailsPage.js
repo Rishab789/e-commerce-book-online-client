@@ -1,37 +1,26 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import Stars from "./Stars";
-import Counter from "./Counter";
-import Button from "./Button";
-import { IoMdHeartEmpty } from "react-icons/io";
-import { IoMdHeart } from "react-icons/io";
-import { booksData } from "../services/booksData";
+import React, { useContext, useEffect, useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
+import Stars from "../components/Stars";
 import { useParams } from "react-router-dom";
 import { ProductContext } from "../contexts/ProductsContext";
-import AddReview from "./AddReview";
-import { useDispatch, useSelector } from "react-redux";
-import toast, { Toaster } from "react-hot-toast";
-import {
-  addCartItems,
-  decreaseCartItems,
-  increaseCartItems,
-} from "../store/slices/cartSlice";
-import { LogInContext } from "./../contexts/LogInContext";
+import { LogInContext } from "../contexts/LogInContext";
+import AddReview from "../components/AddReview";
+import Button from "../components/Button";
+import { IoMdHeart } from "react-icons/io";
+import { booksData } from "../services/booksData";
 
-const Product = () => {
+export const EBooksDetailsPageComponent = () => {
   const { id } = useParams();
 
-  const { allBooks, getAllProducts } = useContext(ProductContext);
+  const { allBooks, getAllEbooks, eBooks } = useContext(ProductContext);
 
-  const [booksDetails, setBooksDetails] = useState(null);
+  const [ebooksDetails, setebooksDetails] = useState(null);
   const [bookGenre, setGenre] = useState("");
   const [isReview, setIsReview] = useState(false);
   const [counter, setCounter] = useState(1);
 
-  const dispatch = useDispatch();
-  const cartData = useSelector((state) => state.cart);
-  const [swapedImage, setSwapImage] = useState("");
-  const [mainImage, setMainImage] = useState("");
-  const [toggle, setToggle] = useState(false);
+  // const dispatch = useDispatch();
+  // const cartData = useSelector((state) => state.cart);
   const [cart, setCart] = useState([]);
 
   const { userId } = useContext(LogInContext); // Extract userId from context
@@ -50,8 +39,8 @@ const Product = () => {
     setCart(products);
   };
 
-  const addToLocalStorage = (book) => {
-    if (!book || !book._id || !userId) {
+  const addToLocalStorage = (ebook) => {
+    if (!ebook || !ebook._id || !userId) {
       // toast.error("Please log in to add items to your cart.");
 
       return;
@@ -63,10 +52,10 @@ const Product = () => {
     const existingCart = JSON.parse(localStorage.getItem(userCartKey)) || [];
 
     // Check if book is already in cart
-    const isBookInCart = existingCart.some((item) => item._id === book._id);
+    const iseBookInCart = existingCart.some((item) => item._id === ebook._id);
 
-    if (!isBookInCart) {
-      const updatedCart = [...existingCart, book];
+    if (!iseBookInCart) {
+      const updatedCart = [...existingCart, ebook];
       // localStorage.setItem("products", JSON.stringify(updatedCart));
       localStorage.setItem(userCartKey, JSON.stringify(updatedCart));
 
@@ -77,26 +66,17 @@ const Product = () => {
   useEffect(() => {
     // getAllProducts();
     getLocalStorage();
-    const books = allBooks.find((item) => item._id === id);
+    const ebooks = eBooks.find((item) => item._id === id);
     setGenre(booksData[0].genre);
 
-    setBooksDetails(books);
-    setSwapImage(books);
-    setMainImage(books);
+    setebooksDetails(ebooks);
+    // setMainImage(books);
   }, [id, allBooks, userId]);
-  if (!booksDetails) {
+  if (!ebooksDetails) {
     return;
   }
 
-  const swapImages = () => {
-    setToggle(!toggle);
-    const imageChange1 = booksDetails.image2;
-    const imageChange2 = booksDetails.image;
-
-    setSwapImage(imageChange1);
-    setMainImage(imageChange2);
-  };
-  console.log("thisis the book ", booksDetails);
+  console.log("thi sis the ebook ", ebooksDetails.stars);
 
   return (
     <div className="flex flex-col lg:flex-row pt-20  px-10">
@@ -109,29 +89,26 @@ const Product = () => {
           {/* Image section  */}
           <div className=" md:w-1/2  flex flex-col justify-center items-center">
             <div>
-              <img
-                src={toggle ? swapedImage : booksDetails.image}
-                width={300}
-              />
+              <img src={ebooksDetails.imageFile} width={300} />
             </div>
 
-            <div className="" onClick={() => swapImages()}>
+            {/* <div className="">
               <img
-                src={toggle ? mainImage : booksDetails.image2}
+                src={ebooksDetails.imageFiles}
                 width={100}
                 className="cursor-pointer"
               />
-            </div>
+            </div> */}
           </div>
           {/* Description Section  */}
           <div className="md:w-1/2 flex flex-col gap-5 relative ">
             <p className="text-2xl md:text-3xl lg:text-4xl rufina1">
-              {booksDetails.title}
+              {ebooksDetails.title}
             </p>
             <p>In Stock</p>
             <div className="flex flex-col md:flex-row lg:flex-row items-center gap-2 ">
-              <Stars stars={booksDetails.stars} />
-              <p>{booksDetails.reviews} Reviews</p>
+              <Stars stars={ebooksDetails.stars} />
+              <p>{ebooksDetails.reviews} Reviews</p>
               <a
                 onClick={() => setIsReview(!isReview)}
                 href="#"
@@ -141,15 +118,15 @@ const Product = () => {
               </a>
               {isReview && (
                 <AddReview
-                  id={booksDetails._id}
-                  name="User"
+                  id={ebooksDetails._id}
+                  name="ebook user"
                   setIsReview={setIsReview}
                 />
               )}
             </div>
             <div className="flex gap-2 rufina1">
               <p className="text-2xl text-secondary-color">
-                ₹{booksDetails.price}
+                ₹{ebooksDetails.price}
               </p>
               <p className="line-through text-2xl">₹399.00</p>
             </div>
@@ -163,9 +140,9 @@ const Product = () => {
                   className="font-bold text-2xl"
                   onClick={() => {
                     setCounter(counter - 1);
-                    dispatch(
-                      decreaseCartItems({ productId: booksDetails._id })
-                    );
+                    // dispatch(
+                    //   decreaseCartItems({ productId: ebooksDetails._id })
+                    // );
                   }}
                 >
                   -
@@ -176,12 +153,12 @@ const Product = () => {
                   onClick={() => {
                     setCounter(counter + 1);
 
-                    dispatch(
-                      increaseCartItems({
-                        productId: booksDetails._id,
-                        quantity: counter,
-                      })
-                    );
+                    // dispatch(
+                    //   increaseCartItems({
+                    //     productId: ebooksDetails._id,
+                    //     quantity: counter,
+                    //   })
+                    // );
                   }}
                 >
                   +
@@ -192,11 +169,11 @@ const Product = () => {
                 color="sign-color"
                 onClick={() => {
                   addToLocalStorage({
-                    _id: booksDetails._id,
-                    image: booksDetails.image,
-                    title: booksDetails.title,
-                    price: booksDetails.price,
-                    type: booksDetails.type,
+                    _id: ebooksDetails._id,
+                    image: ebooksDetails.imageFile,
+                    title: ebooksDetails.title,
+                    price: ebooksDetails.price,
+                    type: ebooksDetails.type,
                     quantity: counter,
                   });
                   // addToLocalStorage();
@@ -210,7 +187,7 @@ const Product = () => {
               </p>
             </div>
             <div>
-              <p>{booksDetails.details}</p>
+              <p>{ebooksDetails.details}</p>
             </div>
           </div>
         </div>
@@ -218,10 +195,10 @@ const Product = () => {
         <p className="text-3xl">Reviews</p>
         <div className="mt-10 bg-slate-100 overflow-y-auto h-96">
           <ul className="flex flex-col gap-4  my-6 ">
-            {booksDetails?.reviewsContent &&
-            Array.isArray(booksDetails.reviewsContent) &&
-            booksDetails.reviewsContent.length > 0 ? (
-              booksDetails.reviewsContent.map((item, index) => (
+            {ebooksDetails?.reviewsContent &&
+            Array.isArray(ebooksDetails.reviewsContent) &&
+            ebooksDetails.reviewsContent.length > 0 ? (
+              ebooksDetails.reviewsContent.map((item, index) => (
                 <li className="flex flex-col gap-1 " key={index}>
                   <div className="flex flex-col  md:flex-row lg:flex-row lg:items-center gap-2 ">
                     <p className="text-xl ">{item.username}</p>
@@ -264,5 +241,3 @@ const Product = () => {
     </div>
   );
 };
-
-export default Product;

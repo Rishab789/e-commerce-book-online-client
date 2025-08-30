@@ -21,7 +21,7 @@ const CartDetails = ({ cartData }) => {
   console.log("this is the user id from product ...", userId);
 
   const priceCalculate = () => {
-    let getPriceArray = products.map((item) => {
+    let getPriceArray = cartData.map((item) => {
       return parseInt(item.price * item.quantity);
     });
 
@@ -34,11 +34,11 @@ const CartDetails = ({ cartData }) => {
     setPrice(getVal);
   };
 
-  useEffect(() => {
-    // let storedProducts = JSON.parse(localStorage.getItem("products")) || [];
-    setProducts(cartData);
-    console.log("this is card details ", cartData);
-  }, []);
+  // useEffect(() => {
+  //   let storedProducts = JSON.parse(localStorage.getItem("products")) || [];
+  //   setProducts(cartData);
+  //   console.log("this is card details ", cartData);
+  // }, []);
 
   useEffect(() => {
     priceCalculate();
@@ -51,7 +51,7 @@ const CartDetails = ({ cartData }) => {
     // console.log(productId);
     // setProducts(updatedProducts);
     // localStorage.setItem("products", JSON.stringify(updatedProducts));
-    const updatedProducts = products.filter((item) => item._id !== productId);
+    const updatedProducts = cartData.filter((item) => item._id !== productId);
     console.log("this is the updated products .. ", updatedProducts);
     setProducts(updatedProducts);
     const userCartKey = `cart_${userId}`;
@@ -61,7 +61,7 @@ const CartDetails = ({ cartData }) => {
   const handleCheckoutClick = () => {
     console.log("handle checout cliked");
     navigate("/checkout", {
-      state: { cartItems: products, totalPrice: price },
+      state: { cartItems: cartData, totalPrice: price },
     });
   };
 
@@ -70,6 +70,7 @@ const CartDetails = ({ cartData }) => {
       <div className="overflow-x-auto">
         <table className="m-auto  sm:w-1/2 md:w-full lg:w-full ">
           <tr>
+            <th>TYPE</th>
             <th>IMAGE</th>
             <th className="w-[40%]">PRODUCT</th>
             <th className="w-[20%] ">PRICE</th>
@@ -78,10 +79,19 @@ const CartDetails = ({ cartData }) => {
             <th>REMOVE</th>
           </tr>
 
-          {products.length > 0 &&
-            products.map(({ _id, image, price, quantity, title }) => (
+          {cartData.length > 0 &&
+            cartData.map(({ _id, image, price, quantity, title, type }) => (
               <tr key={_id}>
                 <>
+                  <td>
+                    <p
+                      className={` rounded-md text-center pr-1 pl-1  ${
+                        type == "book" ? "bg-[#2ecc71]" : "bg-[#e67e22]"
+                      }  font-bold text-white`}
+                    >
+                      {type}
+                    </p>
+                  </td>
                   <td>
                     <img src={image} width={100} />
                   </td>

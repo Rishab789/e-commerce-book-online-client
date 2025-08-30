@@ -4,6 +4,9 @@ import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie"; // Install js-cookie library for easy cookie handling
 import { useNavigate } from "react-router-dom";
 export const LogInContext = createContext();
+import axios from "axios";
+
+import { useGoogleLogin } from "@react-oauth/google";
 
 // import { jwt } from "jsonwebtoken";
 
@@ -77,6 +80,42 @@ export function LoginConextProvider({ children }) {
     setUserId(userId);
   };
 
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      const url = process.env.REACT_APP_URL;
+
+      // Send the Google credential to your backend
+      const response = await fetch(`${url}/api/v1/googleLogin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          credential: credentialResponse.credential,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const { token, user } = data;
+        const userId = user._id;
+
+        // Use the existing login function
+        login(token, userId);
+        navigate("/");
+        return { success: true, message: data.message };
+      } else {
+        return { success: false, message: data.message };
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+      return {
+        success: false,
+        message: "Something went wrong with Google login",
+      };
+    }
+  };
   const logout = () => {
     Cookies.remove("authToken"); // Remove token from cookies
     setAuth({
@@ -90,7 +129,9 @@ export function LoginConextProvider({ children }) {
   };
 
   return (
-    <LogInContext.Provider value={{ auth, login, logout, userId }}>
+    <LogInContext.Provider
+      value={{ auth, login, handleGoogleLogin, logout, userId }}
+    >
       {children}
     </LogInContext.Provider>
   );

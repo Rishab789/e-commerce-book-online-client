@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { LogInContext } from "./../contexts/LogInContext";
 import OTPForm from "../modals/OTPForm";
 import axios from "axios";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+
 export function Signin() {
   const url = process.env.REACT_APP_URL;
   const [showPassword, setShowPassword] = useState(false);
@@ -19,7 +22,7 @@ export function Signin() {
 
   const [otp, setOtp] = useState();
 
-  const { login } = useContext(LogInContext); // Use context
+  const { login, handleGoogleLogin } = useContext(LogInContext); // Use context
 
   const navigate = useNavigate();
 
@@ -94,6 +97,21 @@ export function Signin() {
     return toast.error("Please Enter Your Email");
   }
 
+  const onGoogleSuccess = async (credentialResponse) => {
+    // Optional: decode and log for debugging
+    const credentialResponseDecode = jwtDecode(credentialResponse.credential);
+    console.log("Google user info:", credentialResponseDecode);
+
+    // Use the context handler
+    const result = await handleGoogleLogin(credentialResponse);
+
+    if (result.success) {
+      toast.success(result.message || "Google login successful!");
+    } else {
+      toast.error(result.message || "Google login failed");
+    }
+  };
+
   return (
     <section className="grid text-center h-screen items-center">
       <div>
@@ -149,7 +167,6 @@ export function Signin() {
                 </div>
               </div>
             </label>
-
             <button
               className={`uppercase px-2 py-1 text-white   bg-black h-10 w-full rounded-md mb-5`}
             >
@@ -170,13 +187,18 @@ export function Signin() {
                 Forgot password?
               </p>
             </div>
-            <div className="cursor-pointer flex border mb-3 border-black items-center gap-2 justify-center h-10 rounded-md">
-              <img
+            {/* <div className="cursor-pointer flex border mb-3 border-black items-center gap-2 justify-center h-10 rounded-md"> */}
+            {/* <img
                 src="https://www.material-tailwind.com/logos/logo-google.png"
                 width={30}
-              />
-              <p>SIGN IN WITH GOOGLE</p>
-            </div>
+              /> */}
+            <GoogleLogin
+              onSuccess={onGoogleSuccess}
+              onError={() => {
+                console.log("Login Failed");
+              }}
+            />
+            {/* </div> */}
             <p className="text-center">
               Not registered? <a href="/signup">Create account</a>
             </p>

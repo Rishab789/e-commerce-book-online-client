@@ -14,6 +14,7 @@ const EBookSaveForm = () => {
     link: "",
     description: "",
     category: "",
+    type: "ebook",
   });
 
   async function submitHandler(e) {

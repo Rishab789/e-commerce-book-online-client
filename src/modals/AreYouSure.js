@@ -1,17 +1,32 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Button from "../components/Button";
 import { LogInContext } from "../contexts/LogInContext";
 import { useNavigate } from "react-router-dom";
 
 const AreYouSure = (props) => {
-  const { logout } = useContext(LogInContext); // Use context
+  const { auth, logout } = useContext(LogInContext); // Use context
   const navigate = useNavigate();
   const className = props.className;
+  const [roles, setRole] = useState(null);
 
   const logOuthandler = () => {
     logout();
+    setRole(null);
+
     navigate("/");
   };
+
+  // useEffect(() => {
+  //   if (auth?.token) {
+  //     try {
+  //       // const decodedToken = jwtDecode(auth.token);
+  //       // const role = decodedToken.role;
+  //       // setRole(role);
+  //     } catch (e) {
+  //       console.error("Invalid token:", e);
+  //     }
+  //   }
+  // }, [auth]);
 
   return (
     // <div className={`flex justify-center items-center bg-red-200 `}>

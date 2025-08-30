@@ -17,7 +17,7 @@ const Cart = () => {
     console.log("this is product getting ", storedProducts);
 
     setProducts(storedProducts);
-  }, []);
+  }, [userId]);
 
   return (
     <section className="px-10 md:px-20 lg:px-20 my-20 ">
