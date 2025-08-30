@@ -36,24 +36,29 @@ import ProtectedRoute from "./pages/ProtectedRoute";
 import Orders from "./pages/Orders";
 import BooksCategories from "./components/BooksCategories";
 import BlogsContextProvider from "./contexts/blogs.context";
+import { EBooksDetailsPageComponent } from "./pages/eBookDetailsPage";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const root = createRoot(document.getElementById("root"));
+console.log("Client ID:", process.env.REACT_APP_CLIENT_ID);
 
 const appRouter = createBrowserRouter([
   {
     path: "/",
     element: (
-      <Provider store={store}>
-        <LoadingProvider>
-          <LoginConextProvider>
-            <ProductContextProvider>
-              <BlogsContextProvider>
-                <App />
-              </BlogsContextProvider>
-            </ProductContextProvider>
-          </LoginConextProvider>
-        </LoadingProvider>
-      </Provider>
+      <GoogleOAuthProvider clientId={process.env.REACT_APP_CLIENT_ID}>
+        <Provider store={store}>
+          <LoadingProvider>
+            <LoginConextProvider>
+              <ProductContextProvider>
+                <BlogsContextProvider>
+                  <App />
+                </BlogsContextProvider>
+              </ProductContextProvider>
+            </LoginConextProvider>
+          </LoadingProvider>
+        </Provider>
+      </GoogleOAuthProvider>
     ),
     children: [
       {
@@ -75,6 +80,10 @@ const appRouter = createBrowserRouter([
       {
         path: "/ebook",
         element: <EBookPage />,
+      },
+      {
+        path: "/ebookdetail/:id",
+        element: <EBooksDetailsPageComponent />,
       },
       {
         path: "/blogDetails",

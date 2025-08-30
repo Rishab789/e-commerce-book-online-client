@@ -15,6 +15,8 @@ const ProductContextProvider = ({ children }) => {
     getAllEbooks();
   }, []);
 
+  console.log("this is all books .......>", eBooks);
+
   const getAllProducts = async () => {
     try {
       console.log("this is the url ... ", url);

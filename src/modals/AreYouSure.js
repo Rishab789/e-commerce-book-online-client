@@ -16,17 +16,17 @@ const AreYouSure = (props) => {
     navigate("/");
   };
 
-  useEffect(() => {
-    if (auth?.token) {
-      try {
-        const decodedToken = jwtDecode(auth.token);
-        const role = decodedToken.role;
-        setRole(role);
-      } catch (e) {
-        console.error("Invalid token:", e);
-      }
-    }
-  }, [auth]);
+  // useEffect(() => {
+  //   if (auth?.token) {
+  //     try {
+  //       // const decodedToken = jwtDecode(auth.token);
+  //       // const role = decodedToken.role;
+  //       // setRole(role);
+  //     } catch (e) {
+  //       console.error("Invalid token:", e);
+  //     }
+  //   }
+  // }, [auth]);
 
   return (
     // <div className={`flex justify-center items-center bg-red-200 `}>

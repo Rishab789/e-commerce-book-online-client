@@ -18,6 +18,7 @@ const UploadBook = () => {
     genre: "",
     details: "",
     featured: "",
+    type: "book",
   });
 
   const submitHandler = async (e) => {
