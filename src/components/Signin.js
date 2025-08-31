@@ -20,14 +20,74 @@ export function Signin() {
     password: "",
   });
 
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [touched, setTouched] = useState({
+    email: false,
+    password: false,
+  });
+
   const [otp, setOtp] = useState();
 
   const { login, handleGoogleLogin } = useContext(LogInContext); // Use context
 
   const navigate = useNavigate();
 
+  // Validation functions
+  const validateEmail = (email) => {
+    if (email.length === 0) {
+      return "Email is required";
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return "Enter a valid email";
+    }
+    return "";
+  };
+
+  const validatePassword = (password) => {
+    if (password.length === 0) {
+      return "Password is required";
+    }
+    if (password.length < 8) {
+      return "Password should be at least 8 characters long";
+    }
+
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
+      return "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character";
+    }
+    return "";
+  };
+
   async function submitHandler(e) {
     e.preventDefault();
+
+    // Validate all fields
+    const emailError = validateEmail(formData.email);
+    const passwordError = validatePassword(formData.password);
+
+    setErrors({
+      email: emailError,
+      password: passwordError,
+    });
+
+    setTouched({
+      email: true,
+      password: true,
+    });
+
+    // If there are any validation errors, don't submit
+    if (emailError || passwordError) {
+      return;
+    }
 
     try {
       const response = await fetch(`${url}/api/v1/login`, {
@@ -48,8 +108,17 @@ export function Signin() {
           email: "",
           password: "",
         });
+        setErrors({
+          email: "",
+          password: "",
+        });
+        setTouched({
+          email: false,
+          password: false,
+        });
         toast.success(data.message);
         console.log("this is data ", data);
+
         const { token, user } = data;
         const userId = user._id; // Extract userId from the user object
 
@@ -68,6 +137,8 @@ export function Signin() {
   }
 
   function changeHandler(e) {
+    const { name, value } = e.target;
+
     setFormData((prev) => {
       const { name, value } = e.target;
       return {
@@ -75,6 +146,25 @@ export function Signin() {
         [name]: value,
       };
     });
+
+    // Mark field as touched
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
+
+    // Real-time validation only if field has been touched
+    let error = "";
+    if (name === "email") {
+      error = validateEmail(value);
+    } else if (name === "password") {
+      error = validatePassword(value);
+    }
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
   }
 
   function navigateToOTP() {
@@ -135,26 +225,44 @@ export function Signin() {
                   id="email"
                   value={formData.email}
                   onChange={changeHandler}
-                  className="border border-black w-full h-10 rounded-md px-2 mb-3"
+                  className={`border ${
+                    touched.email && errors.email
+                      ? "border-red-500"
+                      : "border-black"
+                  } w-full h-10 rounded-md px-2 mb-1`}
                 />
+                {touched.email && (
+                  <p
+                    className={`text-xs mb-3 ${
+                      errors.email ? "text-red-500" : "text-gray-600"
+                    }`}
+                  >
+                    {errors.email || "Enter a valid email"}
+                  </p>
+                )}
+                {!touched.email && <div className="mb-3"></div>}
               </div>
             </label>
             <label>
               Password
-              <div className="relative ">
+              <div className="relative">
                 <input
                   type={type}
                   name="password"
                   id="password"
                   value={formData.password}
                   onChange={changeHandler}
-                  className="border border-black w-full h-10 rounded-md px-2 mb-5"
+                  className={`border ${
+                    touched.password && errors.password
+                      ? "border-red-500"
+                      : "border-black"
+                  } w-full h-10 rounded-md px-2 mb-1`}
                 />
                 <div
                   onClick={() => {
                     setShowPassword((prev) => {
-                      const newShowPassword = !prev; // Toggle the state
-                      setType(newShowPassword ? "text" : "password"); // Update type based on the new state
+                      const newShowPassword = !prev;
+                      setType(newShowPassword ? "text" : "password");
                       return newShowPassword;
                     });
                   }}
@@ -165,6 +273,17 @@ export function Signin() {
                     <EyeSlashIcon className="h-5 w-5 absolute right-3 cursor-pointer top-3 text-black" />
                   )}
                 </div>
+                {touched.password && (
+                  <p
+                    className={`text-xs mb-5 ${
+                      errors.password ? "text-red-500" : "text-gray-600"
+                    }`}
+                  >
+                    {errors.password ||
+                      "8 characters with uppercase, lowercase, number, and special character"}
+                  </p>
+                )}
+                {!touched.password && <div className="mb-5"></div>}
               </div>
             </label>
             <button
@@ -187,11 +306,7 @@ export function Signin() {
                 Forgot password?
               </p>
             </div>
-            {/* <div className="cursor-pointer flex border mb-3 border-black items-center gap-2 justify-center h-10 rounded-md"> */}
-            {/* <img
-                src="https://www.material-tailwind.com/logos/logo-google.png"
-                width={30}
-              /> */}
+
             <GoogleLogin
               onSuccess={onGoogleSuccess}
               onError={() => {
