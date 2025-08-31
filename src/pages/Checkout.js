@@ -28,10 +28,101 @@ const Checkout = () => {
     shippingCost: "200",
   });
 
+  const [errors, setErrors] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    street: "",
+    city: "",
+    state: "",
+    pincode: "",
+  });
+
+  const [touched, setTouched] = useState({
+    firstName: false,
+    lastName: false,
+    email: false,
+    phone: false,
+    street: false,
+    city: false,
+    state: false,
+    pincode: false,
+  });
+
   const location = useLocation();
   const cartItems = location.state?.cartItems || [];
   const totalPrice = location.state?.totalPrice || 0;
   const url = process.env.REACT_APP_URL;
+
+  // Validation functions
+  const validateFirstName = (firstName) => {
+    if (firstName.trim().length === 0) {
+      return "First name is required";
+    }
+    return "";
+  };
+
+  const validateLastName = (lastName) => {
+    if (lastName.trim().length === 0) {
+      return "Last name is required";
+    }
+    return "";
+  };
+
+  const validateEmail = (email) => {
+    if (email.length === 0) {
+      return "Email address is required";
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return "Enter a valid email address";
+    }
+    return "";
+  };
+
+  const validatePhone = (phone) => {
+    if (phone.length === 0) {
+      return "Phone number is required";
+    }
+    const phoneRegex = /^[6-9]\d{9}$/; // Indian mobile number format
+    if (!phoneRegex.test(phone)) {
+      return "Phone number must be exactly 10 digits and start with 6-9";
+    }
+    return "";
+  };
+
+  const validateStreet = (street) => {
+    if (street.trim().length === 0) {
+      return "Address is required";
+    }
+    return "";
+  };
+
+  const validateCity = (city) => {
+    if (city.trim().length === 0) {
+      return "City is required";
+    }
+    return "";
+  };
+
+  const validateState = (state) => {
+    if (state.trim().length === 0) {
+      return "State is required";
+    }
+    return "";
+  };
+
+  const validatePincode = (pincode) => {
+    if (pincode.length === 0) {
+      return "Pin code is required";
+    }
+    const pincodeRegex = /^[1-9][0-9]{5}$/; // Indian pincode format
+    if (!pincodeRegex.test(pincode)) {
+      return "Enter a valid 6-digit Indian pin code";
+    }
+    return "";
+  };
 
   const verifyPayment = async (orderId) => {
     console.log("Verifying payment for order ID:", orderId);
@@ -49,6 +140,52 @@ const Checkout = () => {
 
   const formSubmit = async (e) => {
     e.preventDefault();
+
+    const firstNameError = validateFirstName(formData.firstName);
+    const lastNameError = validateLastName(formData.lastName);
+    const emailError = validateEmail(formData.email);
+    const phoneError = validatePhone(formData.phone);
+    const streetError = validateStreet(formData.street);
+    const cityError = validateCity(formData.city);
+    const stateError = validateState(formData.state);
+    const pincodeError = validatePincode(formData.pincode);
+
+    setErrors({
+      firstName: firstNameError,
+      lastName: lastNameError,
+      email: emailError,
+      phone: phoneError,
+      street: streetError,
+      city: cityError,
+      state: stateError,
+      pincode: pincodeError,
+    });
+
+    // Mark all fields as touched for validation display
+    setTouched({
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      street: true,
+      city: true,
+      state: true,
+      pincode: true,
+    });
+
+    // If there are any validation errors, don't submit
+    if (
+      firstNameError ||
+      lastNameError ||
+      emailError ||
+      phoneError ||
+      streetError ||
+      cityError ||
+      stateError ||
+      pincodeError
+    ) {
+      return;
+    }
 
     const products = cartItems.map((item) => ({
       productId: item._id,
@@ -120,6 +257,37 @@ const Checkout = () => {
       ...prev,
       [name]: value,
     }));
+
+    // Mark field as touched
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
+
+    // Real-time validation only if field has been touched
+    let error = "";
+    if (name === "firstName") {
+      error = validateFirstName(value);
+    } else if (name === "lastName") {
+      error = validateLastName(value);
+    } else if (name === "email") {
+      error = validateEmail(value);
+    } else if (name === "phone") {
+      error = validatePhone(value);
+    } else if (name === "street") {
+      error = validateStreet(value);
+    } else if (name === "city") {
+      error = validateCity(value);
+    } else if (name === "state") {
+      error = validateState(value);
+    } else if (name === "pincode") {
+      error = validatePincode(value);
+    }
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
   };
 
   return (
@@ -141,10 +309,24 @@ const Checkout = () => {
                   <input
                     type="text"
                     name="firstName"
-                    className="h-10 border border-black"
+                    className={`h-10 border ${
+                      touched.firstName && errors.firstName
+                        ? "border-red-500"
+                        : "border-black"
+                    } px-2 mb-1`}
                     onChange={handleChange}
                     required
                   />
+                  {touched.firstName && (
+                    <p
+                      className={`text-xs mb-3 ${
+                        errors.firstName ? "text-red-500" : "text-gray-600"
+                      }`}
+                    >
+                      {errors.firstName || "First name is required"}
+                    </p>
+                  )}
+                  {!touched.firstName && <div className="mb-3"></div>}
                 </div>
                 <div className="flex flex-col md:w-1/2">
                   <p>
@@ -153,10 +335,24 @@ const Checkout = () => {
                   <input
                     type="text"
                     name="lastName"
-                    className="h-10 border border-black"
+                    className={`h-10 border ${
+                      touched.lastName && errors.lastName
+                        ? "border-red-500"
+                        : "border-black"
+                    } px-2 mb-1`}
                     onChange={handleChange}
                     required
                   />
+                  {touched.lastName && (
+                    <p
+                      className={`text-xs mb-3 ${
+                        errors.lastName ? "text-red-500" : "text-gray-600"
+                      }`}
+                    >
+                      {errors.lastName || "Last name is required"}
+                    </p>
+                  )}
+                  {!touched.lastName && <div className="mb-3"></div>}
                 </div>
               </div>
 
@@ -166,11 +362,25 @@ const Checkout = () => {
               <input
                 type="text"
                 name="street"
-                className="h-10 border w-full mb-5 border-black"
+                className={`h-10 border w-full ${
+                  touched.street && errors.street
+                    ? "border-red-500"
+                    : "border-black"
+                } px-2 mb-1`}
                 placeholder="Street address"
                 onChange={handleChange}
                 required
               />
+              {touched.street && (
+                <p
+                  className={`text-xs mb-5 ${
+                    errors.street ? "text-red-500" : "text-gray-600"
+                  }`}
+                >
+                  {errors.street || "Address is required"}
+                </p>
+              )}
+              {!touched.street && <div className="mb-5"></div>}
               <input
                 type="text"
                 name="landmark"
@@ -186,10 +396,24 @@ const Checkout = () => {
                 <input
                   type="text"
                   name="city"
-                  className="h-10 border w-full border-black"
+                  className={`h-10 border w-full ${
+                    touched.city && errors.city
+                      ? "border-red-500"
+                      : "border-black"
+                  } px-2 mb-1`}
                   onChange={handleChange}
                   required
                 />
+                {touched.city && (
+                  <p
+                    className={`text-xs mb-3 ${
+                      errors.city ? "text-red-500" : "text-gray-600"
+                    }`}
+                  >
+                    {errors.city || "City is required"}
+                  </p>
+                )}
+                {!touched.city && <div className="mb-3"></div>}
               </div>
 
               <div className="flex flex-col md:flex-row gap-5 mb-5">
@@ -200,10 +424,24 @@ const Checkout = () => {
                   <input
                     type="text"
                     name="state"
-                    className="h-10 border border-black"
+                    className={`h-10 border ${
+                      touched.state && errors.state
+                        ? "border-red-500"
+                        : "border-black"
+                    } px-2 mb-1`}
                     onChange={handleChange}
                     required
                   />
+                  {touched.state && (
+                    <p
+                      className={`text-xs mb-3 ${
+                        errors.state ? "text-red-500" : "text-gray-600"
+                      }`}
+                    >
+                      {errors.state || "State is required"}
+                    </p>
+                  )}
+                  {!touched.state && <div className="mb-3"></div>}
                 </div>
                 <div className="flex flex-col md:w-1/2">
                   <p>
@@ -212,10 +450,25 @@ const Checkout = () => {
                   <input
                     type="text"
                     name="pincode"
-                    className="h-10 border border-black"
+                    className={`h-10 border ${
+                      touched.pincode && errors.pincode
+                        ? "border-red-500"
+                        : "border-black"
+                    } px-2 mb-1`}
                     onChange={handleChange}
                     required
                   />
+                  {touched.pincode && (
+                    <p
+                      className={`text-xs mb-3 ${
+                        errors.pincode ? "text-red-500" : "text-gray-600"
+                      }`}
+                    >
+                      {errors.pincode ||
+                        "Enter a valid 6-digit Indian pin code"}
+                    </p>
+                  )}
+                  {!touched.pincode && <div className="mb-3"></div>}
                 </div>
               </div>
 
@@ -227,10 +480,24 @@ const Checkout = () => {
                   <input
                     type="email"
                     name="email"
-                    className="h-10 border border-black"
+                    className={`h-10 border ${
+                      touched.email && errors.email
+                        ? "border-red-500"
+                        : "border-black"
+                    } px-2 mb-1`}
                     onChange={handleChange}
                     required
                   />
+                  {touched.email && (
+                    <p
+                      className={`text-xs mb-3 ${
+                        errors.email ? "text-red-500" : "text-gray-600"
+                      }`}
+                    >
+                      {errors.email || "Enter a valid email address"}
+                    </p>
+                  )}
+                  {!touched.email && <div className="mb-3"></div>}
                 </div>
                 <div className="flex flex-col md:w-1/2">
                   <p>
@@ -239,10 +506,24 @@ const Checkout = () => {
                   <input
                     type="text"
                     name="phone"
-                    className="h-10 border border-black"
+                    className={`h-10 border ${
+                      touched.phone && errors.phone
+                        ? "border-red-500"
+                        : "border-black"
+                    } px-2 mb-1`}
                     onChange={handleChange}
                     required
                   />
+                  {touched.phone && (
+                    <p
+                      className={`text-xs mb-3 ${
+                        errors.phone ? "text-red-500" : "text-gray-600"
+                      }`}
+                    >
+                      {errors.phone || "Phone number must be exactly 10 digits"}
+                    </p>
+                  )}
+                  {!touched.phone && <div className="mb-3"></div>}
                 </div>
               </div>
 
