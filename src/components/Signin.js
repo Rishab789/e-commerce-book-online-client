@@ -7,6 +7,8 @@ import OTPForm from "../modals/OTPForm";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
+import loading from "../assets/truckLoader.json";
+import Lottie from "lottie-react";
 
 export function Signin() {
   const url = process.env.REACT_APP_URL;
@@ -14,6 +16,7 @@ export function Signin() {
   const [showOTP, setShowOTP] = useState(false);
   const [type, setType] = useState("password");
   const [disable, setDisable] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -88,6 +91,7 @@ export function Signin() {
     if (emailError || passwordError) {
       return;
     }
+    setIsLoading(true);
 
     try {
       const response = await fetch(`${url}/api/v1/login`, {
@@ -101,6 +105,7 @@ export function Signin() {
       const data = await response.json();
 
       if (response.ok) {
+        setIsLoading(false);
         // const result = await response.json();
 
         // Handle successful signup
@@ -204,130 +209,140 @@ export function Signin() {
 
   return (
     <section className="grid text-center h-screen items-center">
-      <div>
-        <Toaster position="top-center" reverseOrder={false} />
-      </div>
-      {!showOTP && (
-        <div>
-          <p className="text-4xl pt-5">Sign In</p>
-          <p className="pb-5 pt-2">Enter your email and password to sign in </p>
-          <form
-            onSubmit={(e) => submitHandler(e)}
-            action="#"
-            className="text-start   w-[90%]  sm:w-1/2 md:w-1/3  lg:w-1/3 m-auto px-5 py-10 rounded-md shadow-[0px_0px_0px_1px_rgba(0,0,0,0.06),0px_1px_1px_-0.5px_rgba(0,0,0,0.06),0px_3px_3px_-1.5px_rgba(0,0,0,0.06),_0px_6px_6px_-3px_rgba(0,0,0,0.06),0px_12px_12px_-6px_rgba(0,0,0,0.06),0px_24px_24px_-12px_rgba(0,0,0,0.06)]"
-          >
-            <label>
-              Your Email
-              <div>
-                <input
-                  type="email"
-                  name="email"
-                  id="email"
-                  value={formData.email}
-                  onChange={changeHandler}
-                  className={`border ${
-                    touched.email && errors.email
-                      ? "border-red-500"
-                      : "border-black"
-                  } w-full h-10 rounded-md px-2 mb-1`}
-                />
-                {touched.email && (
-                  <p
-                    className={`text-xs mb-3 ${
-                      errors.email ? "text-red-500" : "text-gray-600"
-                    }`}
-                  >
-                    {errors.email || "Enter a valid email"}
-                  </p>
-                )}
-                {!touched.email && <div className="mb-3"></div>}
-              </div>
-            </label>
-            <label>
-              Password
-              <div className="relative">
-                <input
-                  type={type}
-                  name="password"
-                  id="password"
-                  value={formData.password}
-                  onChange={changeHandler}
-                  className={`border ${
-                    touched.password && errors.password
-                      ? "border-red-500"
-                      : "border-black"
-                  } w-full h-10 rounded-md px-2 mb-1`}
-                />
-                <div
-                  onClick={() => {
-                    setShowPassword((prev) => {
-                      const newShowPassword = !prev;
-                      setType(newShowPassword ? "text" : "password");
-                      return newShowPassword;
-                    });
-                  }}
-                >
-                  {!showPassword ? (
-                    <EyeIcon className="h-5 w-5 absolute right-3 cursor-pointer top-3 text-black" />
-                  ) : (
-                    <EyeSlashIcon className="h-5 w-5 absolute right-3 cursor-pointer top-3 text-black" />
-                  )}
-                </div>
-                {touched.password && (
-                  <p
-                    className={`text-xs mb-5 ${
-                      errors.password ? "text-red-500" : "text-gray-600"
-                    }`}
-                  >
-                    {errors.password ||
-                      "8 characters with uppercase, lowercase, number, and special character"}
-                  </p>
-                )}
-                {!touched.password && <div className="mb-5"></div>}
-              </div>
-            </label>
-            <button
-              className={`uppercase px-2 py-1 text-white   bg-black h-10 w-full rounded-md mb-5`}
-            >
-              SIGN IN
-            </button>
-            <div className="text-end mb-3">
-              <p
-                className="cursor-pointer"
-                onClick={() => {
-                  if (formData.email == "") {
-                    toast.error("Please Enter Your Email Id");
-                  } else {
-                    setShowOTP(true);
-                  }
-                  navigateToOTP();
-                }}
-              >
-                Forgot password?
-              </p>
-            </div>
-
-            <GoogleLogin
-              onSuccess={onGoogleSuccess}
-              onError={() => {
-                console.log("Login Failed");
-              }}
-            />
-            {/* </div> */}
-            <p className="text-center">
-              Not registered? <a href="/signup">Create account</a>
-            </p>
-          </form>
+      {isLoading ? (
+        <div className="flex justify-center items-center">
+          <Lottie animationData={loading} loop={true} className="w-48 h-48" />
         </div>
-      )}
-      {showOTP && (
-        <OTPForm
-          showOTP={showOTP}
-          otp={otp}
-          disable={disable}
-          setDisable={setDisable}
-          email={formData.email}
-        />
+      ) : (
+        <>
+          <div>
+            <Toaster position="top-center" reverseOrder={false} />
+          </div>
+          {!showOTP && (
+            <div>
+              <p className="text-4xl pt-5">Sign In</p>
+              <p className="pb-5 pt-2">
+                Enter your email and password to sign in{" "}
+              </p>
+              <form
+                onSubmit={(e) => submitHandler(e)}
+                action="#"
+                className="text-start   w-[90%]  sm:w-1/2 md:w-1/3  lg:w-1/3 m-auto px-5 py-10 rounded-md shadow-[0px_0px_0px_1px_rgba(0,0,0,0.06),0px_1px_1px_-0.5px_rgba(0,0,0,0.06),0px_3px_3px_-1.5px_rgba(0,0,0,0.06),_0px_6px_6px_-3px_rgba(0,0,0,0.06),0px_12px_12px_-6px_rgba(0,0,0,0.06),0px_24px_24px_-12px_rgba(0,0,0,0.06)]"
+              >
+                <label>
+                  Your Email
+                  <div>
+                    <input
+                      type="email"
+                      name="email"
+                      id="email"
+                      value={formData.email}
+                      onChange={changeHandler}
+                      className={`border ${
+                        touched.email && errors.email
+                          ? "border-red-500"
+                          : "border-black"
+                      } w-full h-10 rounded-md px-2 mb-1`}
+                    />
+                    {touched.email && (
+                      <p
+                        className={`text-xs mb-3 ${
+                          errors.email ? "text-red-500" : "text-gray-600"
+                        }`}
+                      >
+                        {errors.email || "Enter a valid email"}
+                      </p>
+                    )}
+                    {!touched.email && <div className="mb-3"></div>}
+                  </div>
+                </label>
+                <label>
+                  Password
+                  <div className="relative">
+                    <input
+                      type={type}
+                      name="password"
+                      id="password"
+                      value={formData.password}
+                      onChange={changeHandler}
+                      className={`border ${
+                        touched.password && errors.password
+                          ? "border-red-500"
+                          : "border-black"
+                      } w-full h-10 rounded-md px-2 mb-1`}
+                    />
+                    <div
+                      onClick={() => {
+                        setShowPassword((prev) => {
+                          const newShowPassword = !prev;
+                          setType(newShowPassword ? "text" : "password");
+                          return newShowPassword;
+                        });
+                      }}
+                    >
+                      {!showPassword ? (
+                        <EyeIcon className="h-5 w-5 absolute right-3 cursor-pointer top-3 text-black" />
+                      ) : (
+                        <EyeSlashIcon className="h-5 w-5 absolute right-3 cursor-pointer top-3 text-black" />
+                      )}
+                    </div>
+                    {touched.password && (
+                      <p
+                        className={`text-xs mb-5 ${
+                          errors.password ? "text-red-500" : "text-gray-600"
+                        }`}
+                      >
+                        {errors.password ||
+                          "8 characters with uppercase, lowercase, number, and special character"}
+                      </p>
+                    )}
+                    {!touched.password && <div className="mb-5"></div>}
+                  </div>
+                </label>
+                <button
+                  className={`uppercase px-2 py-1 text-white   bg-black h-10 w-full rounded-md mb-5`}
+                >
+                  SIGN IN
+                </button>
+                <div className="text-end mb-3">
+                  <p
+                    className="cursor-pointer"
+                    onClick={() => {
+                      if (formData.email == "") {
+                        toast.error("Please Enter Your Email Id");
+                      } else {
+                        setShowOTP(true);
+                      }
+                      navigateToOTP();
+                    }}
+                  >
+                    Forgot password?
+                  </p>
+                </div>
+
+                <GoogleLogin
+                  onSuccess={onGoogleSuccess}
+                  onError={() => {
+                    console.log("Login Failed");
+                  }}
+                />
+                {/* </div> */}
+                <p className="text-center">
+                  Not registered? <a href="/signup">Create account</a>
+                </p>
+              </form>
+            </div>
+          )}
+          {showOTP && (
+            <OTPForm
+              showOTP={showOTP}
+              otp={otp}
+              disable={disable}
+              setDisable={setDisable}
+              email={formData.email}
+            />
+          )}
+        </>
       )}
     </section>
   );
