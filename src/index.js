@@ -39,6 +39,7 @@ import BlogsContextProvider from "./contexts/blogs.context";
 import { EBooksDetailsPageComponent } from "./pages/eBookDetailsPage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import VerifyEmail from "./components/VerifyEmail";
+import NotFoundPage from "./pages/NotFoundPage ";
 
 const root = createRoot(document.getElementById("root"));
 console.log("Client ID:", process.env.REACT_APP_CLIENT_ID);
@@ -192,6 +193,10 @@ const appRouter = createBrowserRouter([
         element: <BestSellingForm />,
       },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />,
   },
 ]);
 
