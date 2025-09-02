@@ -14,6 +14,8 @@ const SearchLogoCart = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  // Track failed images to prevent infinite retry loops
+  const [failedImages, setFailedImages] = useState(new Set());
 
   const { userId } = useContext(LogInContext);
   const { allBooks, eBooks } = useContext(ProductContext);
@@ -21,6 +23,10 @@ const SearchLogoCart = () => {
   const searchRef = useRef(null);
   const resultsRef = useRef(null);
   const url = process.env.REACT_APP_URL;
+
+  // Default placeholder image (use a data URL or a reliable placeholder service)
+  const defaultPlaceholder =
+    "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zMCAyNUM0MSAyNSA1MCAzNCA1MCA0NVM0MSA1NSAzMCA1NUMxOSA1NSAxMCA0NiAxMCAzNUMxMCAyNiAxOSAxNyAzMCAxN1oiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
 
   const updateCartLength = () => {
     if (!userId) return;
@@ -149,17 +155,28 @@ const SearchLogoCart = () => {
     setSearchQuery("");
     setSearchResults([]);
     setShowResults(false);
+    // Clear failed images when clearing search
+    setFailedImages(new Set());
   };
 
   const getProductImage = (product) => {
     // Handle different image field names your API might use
-    return (
-      product.image ||
-      product.coverImage ||
-      product.thumbnail ||
-      product.img ||
-      "/api/placeholder/60/60"
-    );
+    const imageUrl =
+      product.image || product.coverImage || product.thumbnail || product.img;
+
+    // If no image URL exists or this image has already failed, return placeholder
+    if (!imageUrl || failedImages.has(imageUrl)) {
+      return defaultPlaceholder;
+    }
+
+    return imageUrl;
+  };
+
+  const handleImageError = (imageUrl, e) => {
+    // Add this image to failed images set to prevent retry
+    setFailedImages((prev) => new Set(prev).add(imageUrl));
+    // Set to default placeholder
+    e.target.src = defaultPlaceholder;
   };
 
   const getProductName = (product) => {
@@ -216,49 +233,51 @@ const SearchLogoCart = () => {
                 </div>
               ) : searchResults.length > 0 ? (
                 <>
-                  {searchResults.map((product) => (
-                    <div
-                      key={product._id || product.id}
-                      onClick={() => handleProductClick(product)}
-                      className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
-                    >
-                      <div className="w-12 h-12 bg-gray-200 rounded mr-3 flex-shrink-0 overflow-hidden">
-                        <img
-                          src={getProductImage(product)}
-                          alt={getProductName(product)}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.src = "/api/placeholder/60/60";
-                          }}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-sm text-gray-800 truncate">
-                          {getProductName(product)}
-                        </h4>
-                        {product.author && (
-                          <p className="text-xs text-gray-500 truncate">
-                            by {product.author}
-                          </p>
-                        )}
-                        {product.category && (
-                          <p className="text-xs text-gray-400 truncate">
-                            {product.category}
-                          </p>
-                        )}
-                        <div className="flex items-center justify-between mt-1">
-                          <p className="text-sm font-bold text-secondary-color">
-                            ${getProductPrice(product)}
-                          </p>
-                          {product.inStock === false && (
-                            <span className="text-xs text-red-500 bg-red-100 px-2 py-1 rounded">
-                              Out of Stock
-                            </span>
+                  {searchResults.map((product) => {
+                    const imageUrl = getProductImage(product);
+                    return (
+                      <div
+                        key={product._id || product.id}
+                        onClick={() => handleProductClick(product)}
+                        className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
+                      >
+                        <div className="w-12 h-12 bg-gray-200 rounded mr-3 flex-shrink-0 overflow-hidden">
+                          <img
+                            src={imageUrl}
+                            alt={getProductName(product)}
+                            className="w-full h-full object-cover"
+                            onError={(e) => handleImageError(imageUrl, e)}
+                            loading="lazy"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-sm text-gray-800 truncate">
+                            {getProductName(product)}
+                          </h4>
+                          {product.author && (
+                            <p className="text-xs text-gray-500 truncate">
+                              by {product.author}
+                            </p>
                           )}
+                          {product.category && (
+                            <p className="text-xs text-gray-400 truncate">
+                              {product.category}
+                            </p>
+                          )}
+                          <div className="flex items-center justify-between mt-1">
+                            <p className="text-sm font-bold text-secondary-color">
+                              ${getProductPrice(product)}
+                            </p>
+                            {product.inStock === false && (
+                              <span className="text-xs text-red-500 bg-red-100 px-2 py-1 rounded">
+                                Out of Stock
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {searchResults.length >= 8 && (
                     <div className="p-3 text-center border-t border-gray-200 bg-gray-50">
                       <button

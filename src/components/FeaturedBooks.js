@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { ProductContext } from "../contexts/ProductsContext";
 import { Link } from "react-router-dom";
+import Lottie from "lottie-react";
+import loading from "../assets/loading.json";
 
 const FeaturedBooks = () => {
   const [isDivHover, setDivHover] = useState(false);
@@ -106,6 +108,9 @@ const FeaturedBooks = () => {
       <section className="pt-1  0 ">
         <div className="text-2xl md:text-3xl lg:text-3xl font-bold text-center">
           FEATURED BOOKS
+        </div>
+        <div className=" flex justify-center  md:hidden lg:hidden -mt-5 -mb-10 ">
+          <Lottie animationData={loading} loop={true} className="w-20 h-20" />
         </div>
 
         <div

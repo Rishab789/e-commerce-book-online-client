@@ -2,6 +2,8 @@ import React from "react";
 import cover from "./../assets/jkCover.png";
 import Slider from "./Slider";
 import "./AuthorBestSelling.css";
+import Lottie from "lottie-react";
+import loading from "../assets/loading.json";
 
 const AuthorBestSelling = () => {
   return (
@@ -21,13 +23,14 @@ const AuthorBestSelling = () => {
             </p>
           </div>
 
-          <p className="rufina1 text-start lg:text-end mb-16">
+          <p className="rufina1 text-start lg:text-end mb-4">
             Vestibulum porttitor iaculis gravida. Praesent vestibulum varius
             placerat. Cras tempor congue neque, id aliquam orci finibus sit
             amet. Fusce at facilisis arcu. Donec aliquet nulla id turpis semper,
             a bibendum metus vulputate. Suspendisse potenti.
           </p>
         </div>
+
         <div className="bg-image-best">
           {/* <div className=" "> */}
           {/* <img
@@ -38,6 +41,9 @@ const AuthorBestSelling = () => {
             /> */}
           {/* </div> */}
         </div>
+        <span className=" flex justify-center  md:hidden lg:hidden -mt-5 -mb-16 ">
+          <Lottie animationData={loading} loop={true} className="w-20 h-20" />
+        </span>
         <div>
           <Slider />
         </div>
