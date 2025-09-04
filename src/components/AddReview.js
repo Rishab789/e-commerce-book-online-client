@@ -2,8 +2,10 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { FaStar } from "react-icons/fa";
 import Button from "./Button";
 import { LoadingContext } from "../contexts/LoadingContext";
+import loader from "../assets/truckLoader.json";
+import Lottie from "lottie-react";
 
-const AddReview = ({ id, name, setIsReview }) => {
+const AddReview = ({ id, name, setIsReview, setIsLoading }) => {
   const url = process.env.REACT_APP_URL;
 
   const [hover, setHover] = useState(0);
@@ -44,6 +46,7 @@ const AddReview = ({ id, name, setIsReview }) => {
 
     try {
       setLoading(true);
+      setIsLoading(true);
       const response = await fetch(`${url}/api/v1/uploadReviewsById`, {
         method: "POST",
         headers: {
@@ -58,6 +61,8 @@ const AddReview = ({ id, name, setIsReview }) => {
       if (response.ok) {
         // toast.success(data.message);
         setLoading(false);
+        setIsLoading(false);
+        setIsReview(false);
       } else {
         // toast.error(data.message);
         // Handle signup failure
@@ -101,7 +106,13 @@ const AddReview = ({ id, name, setIsReview }) => {
           placeholder="Write Your Review"
           className="px-1 text-lg border border-black"
         />
-        <Button value="send" color="sign-color" onClick={SubmitHandler} />
+        {loading ? (
+          <div className="flex justify-center items-center">
+            <Lottie animationData={loader} loop={true} className="w-48 h-48" />
+          </div>
+        ) : (
+          <Button value="send" color="sign-color" onClick={SubmitHandler} />
+        )}
       </div>
     </div>
   );
