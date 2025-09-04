@@ -202,8 +202,11 @@ const Product = () => {
                     quantity: counter,
                   });
                   // addToLocalStorage();
-
-                  toast.success("Product added to cart");
+                  if (!userId) {
+                    alert("Please Log in first!");
+                  } else {
+                    toast.success("Product added to cart");
+                  }
                 }}
               />
               <p className="flex items-center ">
