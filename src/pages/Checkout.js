@@ -1,12 +1,14 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import Button from "../components/Button";
 import "./Checkout.css";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { load } from "@cashfreepayments/cashfree-js";
+import { LogInContext } from "../contexts/LogInContext";
 
 const Checkout = () => {
-  const cashfreeRef = useRef(null); // store SDK instance
+  const cashfreeRef = useRef(null);
+  const { userId } = useContext(LogInContext);
 
   useEffect(() => {
     (async () => {
@@ -55,6 +57,53 @@ const Checkout = () => {
   const totalPrice = location.state?.totalPrice || 0;
   const url = process.env.REACT_APP_URL;
 
+  // Auto-populate form with selected address data (user-specific)
+  useEffect(() => {
+    if (userId) {
+      const selectedAddressData = localStorage.getItem(
+        `selectedAddressData_${userId}`
+      );
+      if (selectedAddressData) {
+        try {
+          const addressData = JSON.parse(selectedAddressData);
+          setFormData((prev) => ({
+            ...prev,
+            firstName: addressData.firstName || "",
+            lastName: addressData.lastName || "",
+            email: addressData.email || "",
+            phone: addressData.phone || "",
+            street: addressData.street || "",
+            landmark: addressData.landmark || "",
+            city: addressData.city || "",
+            state: addressData.state || "",
+            pincode: addressData.pincode || "",
+          }));
+        } catch (error) {
+          console.error("Error parsing selected address data:", error);
+        }
+      }
+    }
+  }, [userId]); // Re-run when userId changes
+
+  // Clear form when user changes (logout/login)
+  useEffect(() => {
+    if (!userId) {
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        street: "",
+        landmark: "",
+        city: "",
+        state: "",
+        pincode: "",
+        gstPrice: "0",
+        shippingCost: "200",
+      });
+    }
+  }, [userId]);
+
   // Validation functions
   const validateFirstName = (firstName) => {
     if (firstName.trim().length === 0) {
@@ -85,7 +134,7 @@ const Checkout = () => {
     if (phone.length === 0) {
       return "Phone number is required";
     }
-    const phoneRegex = /^[6-9]\d{9}$/; // Indian mobile number format
+    const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(phone)) {
       return "Phone number must be exactly 10 digits and start with 6-9";
     }
@@ -117,7 +166,7 @@ const Checkout = () => {
     if (pincode.length === 0) {
       return "Pin code is required";
     }
-    const pincodeRegex = /^[1-9][0-9]{5}$/; // Indian pincode format
+    const pincodeRegex = /^[1-9][0-9]{5}$/;
     if (!pincodeRegex.test(pincode)) {
       return "Enter a valid 6-digit Indian pin code";
     }
@@ -161,7 +210,6 @@ const Checkout = () => {
       pincode: pincodeError,
     });
 
-    // Mark all fields as touched for validation display
     setTouched({
       firstName: true,
       lastName: true,
@@ -173,7 +221,6 @@ const Checkout = () => {
       pincode: true,
     });
 
-    // If there are any validation errors, don't submit
     if (
       firstNameError ||
       lastNameError ||
@@ -244,7 +291,7 @@ const Checkout = () => {
           redirectTarget: "_modal",
         })
         .then(() => {
-          verifyPayment(cf_order_id); // Use order ID directly from API response
+          verifyPayment(cf_order_id);
         });
     } catch (err) {
       console.error("Payment flow error:", err);
@@ -258,13 +305,11 @@ const Checkout = () => {
       [name]: value,
     }));
 
-    // Mark field as touched
     setTouched((prev) => ({
       ...prev,
       [name]: true,
     }));
 
-    // Real-time validation only if field has been touched
     let error = "";
     if (name === "firstName") {
       error = validateFirstName(value);
@@ -309,6 +354,7 @@ const Checkout = () => {
                   <input
                     type="text"
                     name="firstName"
+                    value={formData.firstName}
                     className={`h-10 border ${
                       touched.firstName && errors.firstName
                         ? "border-red-500"
@@ -335,6 +381,7 @@ const Checkout = () => {
                   <input
                     type="text"
                     name="lastName"
+                    value={formData.lastName}
                     className={`h-10 border ${
                       touched.lastName && errors.lastName
                         ? "border-red-500"
@@ -362,6 +409,7 @@ const Checkout = () => {
               <input
                 type="text"
                 name="street"
+                value={formData.street}
                 className={`h-10 border w-full ${
                   touched.street && errors.street
                     ? "border-red-500"
@@ -384,6 +432,7 @@ const Checkout = () => {
               <input
                 type="text"
                 name="landmark"
+                value={formData.landmark}
                 className="h-10 border w-full mb-5 border-black"
                 placeholder="Landmark (optional)"
                 onChange={handleChange}
@@ -396,6 +445,7 @@ const Checkout = () => {
                 <input
                   type="text"
                   name="city"
+                  value={formData.city}
                   className={`h-10 border w-full ${
                     touched.city && errors.city
                       ? "border-red-500"
@@ -424,6 +474,7 @@ const Checkout = () => {
                   <input
                     type="text"
                     name="state"
+                    value={formData.state}
                     className={`h-10 border ${
                       touched.state && errors.state
                         ? "border-red-500"
@@ -450,6 +501,7 @@ const Checkout = () => {
                   <input
                     type="text"
                     name="pincode"
+                    value={formData.pincode}
                     className={`h-10 border ${
                       touched.pincode && errors.pincode
                         ? "border-red-500"
@@ -480,6 +532,7 @@ const Checkout = () => {
                   <input
                     type="email"
                     name="email"
+                    value={formData.email}
                     className={`h-10 border ${
                       touched.email && errors.email
                         ? "border-red-500"
@@ -506,6 +559,7 @@ const Checkout = () => {
                   <input
                     type="text"
                     name="phone"
+                    value={formData.phone}
                     className={`h-10 border ${
                       touched.phone && errors.phone
                         ? "border-red-500"
