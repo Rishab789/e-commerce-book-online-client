@@ -4,7 +4,7 @@ import Button from "./Button";
 import Counter from "./Counter";
 // import { useDispatch, useSelector } from "react-redux";
 // import { removeCartItems } from "../store/slices/cartSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LogInContext } from "../contexts/LogInContext";
 // import { LogInContext } from "./../contexts/LogInContext";
 
@@ -93,7 +93,9 @@ const CartDetails = ({ cartData }) => {
                     </p>
                   </td>
                   <td>
-                    <img src={image} width={100} />
+                    <Link to={`/productDetails/${_id}`}>
+                      <img src={image} width={100} />
+                    </Link>
                   </td>
                   <td>{title}</td>
                   <td>₹ {price}/-</td>

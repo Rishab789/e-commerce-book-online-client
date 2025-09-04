@@ -33,6 +33,7 @@ const Product = () => {
   const [mainImage, setMainImage] = useState("");
   const [toggle, setToggle] = useState(false);
   const [cart, setCart] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { userId } = useContext(LogInContext); // Extract userId from context
 
@@ -96,7 +97,7 @@ const Product = () => {
     setSwapImage(imageChange1);
     setMainImage(imageChange2);
   };
-  console.log("thisis the book ", booksDetails);
+  console.log("this is the book ", booksDetails);
 
   return (
     <div className="flex flex-col lg:flex-row pt-20  px-10">
@@ -144,6 +145,7 @@ const Product = () => {
                   id={booksDetails._id}
                   name="User"
                   setIsReview={setIsReview}
+                  setIsLoading={setIsLoading}
                 />
               )}
             </div>
