@@ -7,6 +7,7 @@ import { LogInContext } from "../contexts/LogInContext";
 import { ProductContext } from "../contexts/ProductsContext";
 import logo from "../assets/novelezLogo.png";
 import axios from "axios";
+import { CartContext } from "../contexts/cart.context";
 
 const SearchLogoCart = () => {
   const [cartLength, setCartLength] = useState(0);
@@ -19,6 +20,7 @@ const SearchLogoCart = () => {
 
   const { userId } = useContext(LogInContext);
   const { allBooks, eBooks } = useContext(ProductContext);
+  const { products } = useContext(CartContext);
   const navigate = useNavigate();
   const searchRef = useRef(null);
   const resultsRef = useRef(null);
@@ -312,9 +314,9 @@ const SearchLogoCart = () => {
           <div className="flex items-center hover:text-secondary-color hover:cursor-pointer">
             <div className="relative">
               <IoIosCart style={{ fontSize: 45 }} />
-              {cartLength > 0 && (
+              {products.length > 0 && (
                 <div className="absolute -bottom-4 -right-2 bg-secondary-color text-white h-8 w-8 flex justify-center items-center rounded-full text-sm">
-                  {cartLength}
+                  {products.length}
                 </div>
               )}
             </div>
