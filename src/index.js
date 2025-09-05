@@ -40,6 +40,7 @@ import { EBooksDetailsPageComponent } from "./pages/eBookDetailsPage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import VerifyEmail from "./components/VerifyEmail";
 import NotFoundPage from "./pages/NotFoundPage ";
+import { CartContextProvider } from "./contexts/cart.context";
 
 const root = createRoot(document.getElementById("root"));
 console.log("Client ID:", process.env.REACT_APP_CLIENT_ID);
@@ -54,7 +55,9 @@ const appRouter = createBrowserRouter([
             <LoginConextProvider>
               <ProductContextProvider>
                 <BlogsContextProvider>
-                  <App />
+                  <CartContextProvider>
+                    <App />
+                  </CartContextProvider>
                 </BlogsContextProvider>
               </ProductContextProvider>
             </LoginConextProvider>
