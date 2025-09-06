@@ -135,7 +135,7 @@ const EBookProducts = ({ product }) => {
           </div>
 
           {/* Features */}
-          <div className="flex items-center justify-between text-xs text-gray-500 mb-4 pb-4 border-b border-gray-100">
+          {/* <div className="flex items-center justify-between text-xs text-gray-500 mb-4 pb-4 border-b border-gray-100">
             <div className="flex items-center space-x-1">
               <svg
                 className="h-4 w-4"
@@ -168,7 +168,7 @@ const EBookProducts = ({ product }) => {
               </svg>
               <span>DRM Free</span>
             </div>
-          </div>
+          </div> */}
 
           {/* Enhanced Button */}
           <div className="relative overflow-hidden rounded-lg">
@@ -183,11 +183,11 @@ const EBookProducts = ({ product }) => {
           </div>
 
           {/* Quick Preview Link */}
-          <div className="mt-3 text-center">
+          {/* <div className="mt-3 text-center">
             <button className="text-orange-600 hover:text-orange-700 text-sm font-medium underline decoration-dotted underline-offset-2 transition-colors duration-300">
               Preview Sample
             </button>
-          </div>
+          </div> */}
         </div>
       </article>
     </Link>

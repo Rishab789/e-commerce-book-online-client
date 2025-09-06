@@ -143,15 +143,27 @@ const CartDetails = () => {
                     </p>
                   </td>
                   <td className="px-4 py-3">
-                    <Link to={`/productDetails/${productId}`}>
-                      <img
-                        src={image}
-                        width={80}
-                        height={80}
-                        alt={title}
-                        className="rounded-md object-cover shadow-sm"
-                      />
-                    </Link>
+                    {type == "book" ? (
+                      <Link to={`/productDetails/${productId}`}>
+                        <img
+                          src={image}
+                          width={80}
+                          height={80}
+                          alt={title}
+                          className="rounded-md object-cover shadow-sm"
+                        />
+                      </Link>
+                    ) : (
+                      <Link to={`/ebookdetail/${productId}`}>
+                        <img
+                          src={image}
+                          width={80}
+                          height={80}
+                          alt={title}
+                          className="rounded-md object-cover shadow-sm"
+                        />
+                      </Link>
+                    )}
                   </td>
                   <td className="px-4 py-3 font-medium">{title}</td>
                   <td className="px-4 py-3 font-semibold text-gray-700">
