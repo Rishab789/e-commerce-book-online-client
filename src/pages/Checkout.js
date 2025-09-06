@@ -9,12 +9,7 @@ import { LogInContext } from "../contexts/LogInContext";
 const Checkout = () => {
   const cashfreeRef = useRef(null);
   const { userId } = useContext(LogInContext);
-
-  useEffect(() => {
-    (async () => {
-      cashfreeRef.current = await load({ mode: "sandbox" });
-    })();
-  }, []);
+  const url = process.env.REACT_APP_URL;
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -30,62 +25,51 @@ const Checkout = () => {
     shippingCost: "200",
   });
 
-  const [errors, setErrors] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    street: "",
-    city: "",
-    state: "",
-    pincode: "",
-  });
-
-  const [touched, setTouched] = useState({
-    firstName: false,
-    lastName: false,
-    email: false,
-    phone: false,
-    street: false,
-    city: false,
-    state: false,
-    pincode: false,
-  });
-
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const location = useLocation();
   const cartItems = location.state?.cartItems || [];
   const totalPrice = location.state?.totalPrice || 0;
-  const url = process.env.REACT_APP_URL;
 
-  // Auto-populate form with selected address data (user-specific)
+  // ✅ Load Cashfree
   useEffect(() => {
-    if (userId) {
-      const selectedAddressData = localStorage.getItem(
-        `selectedAddressData_${userId}`
-      );
-      if (selectedAddressData) {
-        try {
-          const addressData = JSON.parse(selectedAddressData);
+    (async () => {
+      cashfreeRef.current = await load({ mode: "sandbox" });
+    })();
+  }, []);
+
+  // ✅ Fetch default address from DB
+  useEffect(() => {
+    const fetchDefaultAddress = async () => {
+      if (!userId) return;
+      try {
+        const res = await axios.get(`${url}/api/v1/getAddresses/${userId}`);
+        const addresses = res.data?.addresses || [];
+        const defaultAddress = addresses.find((addr) => addr.isDefault);
+
+        if (defaultAddress) {
           setFormData((prev) => ({
             ...prev,
-            firstName: addressData.firstName || "",
-            lastName: addressData.lastName || "",
-            email: addressData.email || "",
-            phone: addressData.phone || "",
-            street: addressData.street || "",
-            landmark: addressData.landmark || "",
-            city: addressData.city || "",
-            state: addressData.state || "",
-            pincode: addressData.pincode || "",
+            firstName: defaultAddress.firstName || "",
+            lastName: defaultAddress.lastName || "",
+            email: defaultAddress.email || "",
+            phone: defaultAddress.phone || "",
+            street: defaultAddress.address.street || "",
+            landmark: defaultAddress.address.landmark || "",
+            city: defaultAddress.address.city || "",
+            state: defaultAddress.address.state || "",
+            pincode: defaultAddress.address.pincode || "",
           }));
-        } catch (error) {
-          console.error("Error parsing selected address data:", error);
         }
+      } catch (err) {
+        console.error("Error fetching default address:", err);
       }
-    }
-  }, [userId]); // Re-run when userId changes
+    };
 
-  // Clear form when user changes (logout/login)
+    fetchDefaultAddress();
+  }, [userId, url]);
+
+  // ✅ Clear form if user logs out
   useEffect(() => {
     if (!userId) {
       setFormData({
@@ -104,84 +88,31 @@ const Checkout = () => {
     }
   }, [userId]);
 
-  // Validation functions
-  const validateFirstName = (firstName) => {
-    if (firstName.trim().length === 0) {
-      return "First name is required";
-    }
-    return "";
-  };
+  // ---------------- VALIDATIONS ----------------
+  const validateFirstName = (val) =>
+    !val.trim() ? "First name is required" : "";
+  const validateLastName = (val) =>
+    !val.trim() ? "Last name is required" : "";
+  const validateEmail = (val) =>
+    !val
+      ? "Email is required"
+      : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)
+      ? ""
+      : "Enter a valid email address";
+  const validatePhone = (val) =>
+    /^[6-9]\d{9}$/.test(val) ? "" : "Phone must be 10 digits starting with 6-9";
+  const validateStreet = (val) =>
+    !val.trim() ? "Street address is required" : "";
+  const validateCity = (val) => (!val.trim() ? "City is required" : "");
+  const validateState = (val) => (!val.trim() ? "State is required" : "");
+  const validatePincode = (val) =>
+    /^[1-9][0-9]{5}$/.test(val) ? "" : "Enter a valid 6-digit pin code";
 
-  const validateLastName = (lastName) => {
-    if (lastName.trim().length === 0) {
-      return "Last name is required";
-    }
-    return "";
-  };
-
-  const validateEmail = (email) => {
-    if (email.length === 0) {
-      return "Email address is required";
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return "Enter a valid email address";
-    }
-    return "";
-  };
-
-  const validatePhone = (phone) => {
-    if (phone.length === 0) {
-      return "Phone number is required";
-    }
-    const phoneRegex = /^[6-9]\d{9}$/;
-    if (!phoneRegex.test(phone)) {
-      return "Phone number must be exactly 10 digits and start with 6-9";
-    }
-    return "";
-  };
-
-  const validateStreet = (street) => {
-    if (street.trim().length === 0) {
-      return "Address is required";
-    }
-    return "";
-  };
-
-  const validateCity = (city) => {
-    if (city.trim().length === 0) {
-      return "City is required";
-    }
-    return "";
-  };
-
-  const validateState = (state) => {
-    if (state.trim().length === 0) {
-      return "State is required";
-    }
-    return "";
-  };
-
-  const validatePincode = (pincode) => {
-    if (pincode.length === 0) {
-      return "Pin code is required";
-    }
-    const pincodeRegex = /^[1-9][0-9]{5}$/;
-    if (!pincodeRegex.test(pincode)) {
-      return "Enter a valid 6-digit Indian pin code";
-    }
-    return "";
-  };
-
+  // ---------------- PAYMENT ----------------
   const verifyPayment = async (orderId) => {
-    console.log("Verifying payment for order ID:", orderId);
     try {
-      const res = await axios.post(`${url}/api/v1/verify`, {
-        orderId,
-      });
-      if (res.data) {
-        alert("✅ Payment Verified Successfully");
-      }
+      const res = await axios.post(`${url}/api/v1/verify`, { orderId });
+      if (res.data) alert("✅ Payment Verified Successfully");
     } catch (err) {
       console.error("❌ Payment verification error", err);
     }
@@ -190,6 +121,7 @@ const Checkout = () => {
   const formSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate all fields
     const firstNameError = validateFirstName(formData.firstName);
     const lastNameError = validateLastName(formData.lastName);
     const emailError = validateEmail(formData.email);
@@ -199,7 +131,7 @@ const Checkout = () => {
     const stateError = validateState(formData.state);
     const pincodeError = validatePincode(formData.pincode);
 
-    setErrors({
+    const newErrors = {
       firstName: firstNameError,
       lastName: lastNameError,
       email: emailError,
@@ -208,8 +140,9 @@ const Checkout = () => {
       city: cityError,
       state: stateError,
       pincode: pincodeError,
-    });
+    };
 
+    setErrors(newErrors);
     setTouched({
       firstName: true,
       lastName: true,
@@ -221,19 +154,9 @@ const Checkout = () => {
       pincode: true,
     });
 
-    if (
-      firstNameError ||
-      lastNameError ||
-      emailError ||
-      phoneError ||
-      streetError ||
-      cityError ||
-      stateError ||
-      pincodeError
-    ) {
-      return;
-    }
+    if (Object.values(newErrors).some((err) => err)) return;
 
+    // Prepare order data
     const products = cartItems.map((item) => ({
       productId: item._id,
       name: item.title,
@@ -259,10 +182,7 @@ const Checkout = () => {
       totalPrice: Number(totalPrice),
       gstPrice: Number(formData.gstPrice),
       shippingCost: Number(formData.shippingCost),
-      coupon: {
-        code: null,
-        discountAmount: 0,
-      },
+      coupon: { code: null, discountAmount: 0 },
     };
 
     const orderData = {
@@ -271,7 +191,6 @@ const Checkout = () => {
       orderSummary,
       paymentStatus: "Pending",
       deliveryStatus: "Pending",
-      trackingNumber: null,
       placedAt: new Date().toISOString(),
     };
 
@@ -283,56 +202,34 @@ const Checkout = () => {
       }
 
       const { payment_session_id, cf_order_id } = res.data;
-      console.log("this is the data ---> ", res.data);
-
       await cashfreeRef.current
         .checkout({
           paymentSessionId: payment_session_id,
           redirectTarget: "_modal",
         })
-        .then(() => {
-          verifyPayment(cf_order_id);
-        });
+        .then(() => verifyPayment(cf_order_id));
     } catch (err) {
       console.error("Payment flow error:", err);
     }
   };
 
+  // ---------------- INPUT HANDLER ----------------
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    setTouched((prev) => ({
-      ...prev,
-      [name]: true,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
 
     let error = "";
-    if (name === "firstName") {
-      error = validateFirstName(value);
-    } else if (name === "lastName") {
-      error = validateLastName(value);
-    } else if (name === "email") {
-      error = validateEmail(value);
-    } else if (name === "phone") {
-      error = validatePhone(value);
-    } else if (name === "street") {
-      error = validateStreet(value);
-    } else if (name === "city") {
-      error = validateCity(value);
-    } else if (name === "state") {
-      error = validateState(value);
-    } else if (name === "pincode") {
-      error = validatePincode(value);
-    }
+    if (name === "firstName") error = validateFirstName(value);
+    if (name === "lastName") error = validateLastName(value);
+    if (name === "email") error = validateEmail(value);
+    if (name === "phone") error = validatePhone(value);
+    if (name === "street") error = validateStreet(value);
+    if (name === "city") error = validateCity(value);
+    if (name === "state") error = validateState(value);
+    if (name === "pincode") error = validatePincode(value);
 
-    setErrors((prev) => ({
-      ...prev,
-      [name]: error,
-    }));
+    setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   return (
@@ -346,6 +243,7 @@ const Checkout = () => {
               BILLING DETAILS
             </p>
             <form onSubmit={formSubmit}>
+              {/* First Name + Last Name */}
               <div className="flex flex-col md:flex-row gap-5 mb-5">
                 <div className="flex flex-col md:w-1/2">
                   <p>
@@ -364,15 +262,10 @@ const Checkout = () => {
                     required
                   />
                   {touched.firstName && (
-                    <p
-                      className={`text-xs mb-3 ${
-                        errors.firstName ? "text-red-500" : "text-gray-600"
-                      }`}
-                    >
-                      {errors.firstName || "First name is required"}
+                    <p className="text-xs mb-3 text-red-500">
+                      {errors.firstName}
                     </p>
                   )}
-                  {!touched.firstName && <div className="mb-3"></div>}
                 </div>
                 <div className="flex flex-col md:w-1/2">
                   <p>
@@ -391,18 +284,14 @@ const Checkout = () => {
                     required
                   />
                   {touched.lastName && (
-                    <p
-                      className={`text-xs mb-3 ${
-                        errors.lastName ? "text-red-500" : "text-gray-600"
-                      }`}
-                    >
-                      {errors.lastName || "Last name is required"}
+                    <p className="text-xs mb-3 text-red-500">
+                      {errors.lastName}
                     </p>
                   )}
-                  {!touched.lastName && <div className="mb-3"></div>}
                 </div>
               </div>
 
+              {/* Address */}
               <p>
                 Address <span>*</span>
               </p>
@@ -420,15 +309,9 @@ const Checkout = () => {
                 required
               />
               {touched.street && (
-                <p
-                  className={`text-xs mb-5 ${
-                    errors.street ? "text-red-500" : "text-gray-600"
-                  }`}
-                >
-                  {errors.street || "Address is required"}
-                </p>
+                <p className="text-xs mb-5 text-red-500">{errors.street}</p>
               )}
-              {!touched.street && <div className="mb-5"></div>}
+
               <input
                 type="text"
                 name="landmark"
@@ -438,6 +321,7 @@ const Checkout = () => {
                 onChange={handleChange}
               />
 
+              {/* City + State + Pincode */}
               <div className="mb-5">
                 <p>
                   Town/City <span>*</span>
@@ -455,15 +339,8 @@ const Checkout = () => {
                   required
                 />
                 {touched.city && (
-                  <p
-                    className={`text-xs mb-3 ${
-                      errors.city ? "text-red-500" : "text-gray-600"
-                    }`}
-                  >
-                    {errors.city || "City is required"}
-                  </p>
+                  <p className="text-xs mb-3 text-red-500">{errors.city}</p>
                 )}
-                {!touched.city && <div className="mb-3"></div>}
               </div>
 
               <div className="flex flex-col md:flex-row gap-5 mb-5">
@@ -484,15 +361,8 @@ const Checkout = () => {
                     required
                   />
                   {touched.state && (
-                    <p
-                      className={`text-xs mb-3 ${
-                        errors.state ? "text-red-500" : "text-gray-600"
-                      }`}
-                    >
-                      {errors.state || "State is required"}
-                    </p>
+                    <p className="text-xs mb-3 text-red-500">{errors.state}</p>
                   )}
-                  {!touched.state && <div className="mb-3"></div>}
                 </div>
                 <div className="flex flex-col md:w-1/2">
                   <p>
@@ -511,19 +381,14 @@ const Checkout = () => {
                     required
                   />
                   {touched.pincode && (
-                    <p
-                      className={`text-xs mb-3 ${
-                        errors.pincode ? "text-red-500" : "text-gray-600"
-                      }`}
-                    >
-                      {errors.pincode ||
-                        "Enter a valid 6-digit Indian pin code"}
+                    <p className="text-xs mb-3 text-red-500">
+                      {errors.pincode}
                     </p>
                   )}
-                  {!touched.pincode && <div className="mb-3"></div>}
                 </div>
               </div>
 
+              {/* Email + Phone */}
               <div className="flex flex-col md:flex-row gap-5 mb-5">
                 <div className="flex flex-col md:w-1/2">
                   <p>
@@ -542,15 +407,8 @@ const Checkout = () => {
                     required
                   />
                   {touched.email && (
-                    <p
-                      className={`text-xs mb-3 ${
-                        errors.email ? "text-red-500" : "text-gray-600"
-                      }`}
-                    >
-                      {errors.email || "Enter a valid email address"}
-                    </p>
+                    <p className="text-xs mb-3 text-red-500">{errors.email}</p>
                   )}
-                  {!touched.email && <div className="mb-3"></div>}
                 </div>
                 <div className="flex flex-col md:w-1/2">
                   <p>
@@ -569,18 +427,12 @@ const Checkout = () => {
                     required
                   />
                   {touched.phone && (
-                    <p
-                      className={`text-xs mb-3 ${
-                        errors.phone ? "text-red-500" : "text-gray-600"
-                      }`}
-                    >
-                      {errors.phone || "Phone number must be exactly 10 digits"}
-                    </p>
+                    <p className="text-xs mb-3 text-red-500">{errors.phone}</p>
                   )}
-                  {!touched.phone && <div className="mb-3"></div>}
                 </div>
               </div>
 
+              {/* Hidden fields */}
               <input type="hidden" name="gstPrice" value={formData.gstPrice} />
               <input
                 type="hidden"
