@@ -4,11 +4,32 @@ import { LogInContext } from "./../contexts/LogInContext";
 import { jwtDecode } from "jwt-decode"; // Install jwt-decode library to parse JWT tokens
 import toast, { Toaster } from "react-hot-toast";
 import user from "./../assets/dashboardAssets/user.png";
+import axios from "axios";
 
 const TopBar = ({ onLogoutClick }) => {
-  const { auth, logout } = useContext(LogInContext); // Use context
+  const { auth, logout, userId } = useContext(LogInContext); // Use context
   const navigate = useNavigate();
   const [roles, setRole] = useState(null);
+  const [users, setUsers] = useState(null);
+
+  const API_BASE = `${process.env.REACT_APP_URL}/api/v1`;
+
+  useEffect(() => {
+    if (!userId) return; // wait until userId is set
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get(
+          `${API_BASE}/getUser/${userId}`,
+          { withCredentials: true } // include cookies if using auth
+        );
+        setUsers(res.data.user);
+      } catch (err) {
+        console.error("❌ Error fetching user:", err);
+      }
+    };
+
+    fetchUser();
+  }, [userId]);
 
   useEffect(() => {
     if (auth?.token) {
@@ -59,10 +80,15 @@ const TopBar = ({ onLogoutClick }) => {
           My Account
         </a> */}
         {/* <div className="separator"></div> */}
-        <a href="/checkout" className={`hover:text-secondary-color text-sm `}>
+        <a
+          href="/checkout"
+          className={`hover:text-secondary-color text-sm ${
+            auth?.token ? "block" : "hidden"
+          }`}
+        >
           Checkout
         </a>
-        <div className="separator "></div>
+        <div className={`separator  ${auth?.token ? "block" : "hidden"}`}></div>
         {/* <Link to="/signin" className="hover:text-secondary-color text-sm"> */}
         {auth.isLoggedIn ? (
           <span
@@ -81,11 +107,17 @@ const TopBar = ({ onLogoutClick }) => {
             Log in
           </Link>
         )}
-        <div className={`separator`}></div>
+        <div className={`separator ${auth?.token ? "block" : "hidden"}`}></div>
 
-        <a href="/myaccount" className={`hover:text-secondary-color text-sm `}>
+        <a
+          href="/myaccount"
+          className={`hover:text-secondary-color text-sm ${
+            auth?.token ? "block" : "hidden"
+          }`}
+        >
           <img src={user} width={20} />
         </a>
+        <p>{users ? users.email : ""}</p>
       </div>
     </section>
   );

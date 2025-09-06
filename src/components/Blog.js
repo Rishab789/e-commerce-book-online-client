@@ -1,53 +1,68 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { blogsData } from "../services/blogsData";
+import { FaChevronLeft, FaChevronRight, FaCalendarAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BlogsContext } from "../contexts/blogs.context";
 
 const Blog = () => {
-  const [isDivHover, setDivHover] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const containerRef = useRef(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 390);
-
   const [startX, setStartX] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const swipeThreshold = 50;
 
   const { blogs } = useContext(BlogsContext);
 
+  // Calculate visible items based on screen size
+  const getVisibleItems = () => {
+    if (window.innerWidth < 640) return 1;
+    if (window.innerWidth < 1024) return 2;
+    return 3;
+  };
+
+  const [visibleItems, setVisibleItems] = useState(getVisibleItems());
+
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 390);
+      setIsMobile(window.innerWidth < 768);
+      setVisibleItems(getVisibleItems());
     };
 
-    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const rightHandler = () => {
-    setCurrentIndex((prev) => prev + 1);
+  // Auto slide every 5 seconds if not hovered
+  useEffect(() => {
+    if (isHovered || blogs.length <= visibleItems) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) =>
+        prevIndex >= blogs.length - visibleItems ? 0 : prevIndex + 1
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [isHovered, blogs.length, visibleItems]);
+
+  const nextSlide = () => {
+    if (currentIndex >= blogs.length - visibleItems) {
+      setCurrentIndex(0);
+    } else {
+      setCurrentIndex((prev) => prev + 1);
+    }
   };
 
-  const leftHandler = () => {
-    if (currentIndex > 0) {
+  const prevSlide = () => {
+    if (currentIndex <= 0) {
+      setCurrentIndex(blogs.length - visibleItems);
+    } else {
       setCurrentIndex((prev) => prev - 1);
     }
   };
 
-  const handleTransitionEnd = () => {
-    if (currentIndex >= blogsData.length) {
-      containerRef.current.style.transition = "none";
-      setCurrentIndex(0);
-      containerRef.current.style.transform = `translateX(0px)`;
-      setTimeout(() => {
-        containerRef.current.style.transition = "transform 0.7s ease-in-out";
-      });
-    }
-  };
-
-  // 🟡 Handle swipe (touch and mouse)
+  // Touch and mouse swipe handlers
   const handleStart = (e) => {
     const x = e.touches ? e.touches[0].clientX : e.clientX;
     setStartX(x);
@@ -62,9 +77,9 @@ const Blog = () => {
 
     if (Math.abs(distance) > swipeThreshold) {
       if (distance > 0) {
-        rightHandler();
+        nextSlide();
       } else {
-        leftHandler();
+        prevSlide();
       }
       setIsDragging(false);
     }
@@ -75,99 +90,188 @@ const Blog = () => {
     setStartX(null);
   };
 
-  return (
-    <div className="relative">
-      <section className="pt-20">
-        <div className="text-xl sm:text-2xl md:text-3xl font-bold text-center">
-          LATEST FROM OUR BLOGS
+  // Format date function
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return {
+      day: date.getDate(),
+      month: date.toLocaleString("default", { month: "short" }).toUpperCase(),
+    };
+  };
+
+  if (!blogs || blogs.length === 0) {
+    return (
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12 text-gray-800">
+            LATEST FROM OUR BLOGS
+          </h2>
+          <p className="text-center text-gray-600">
+            No blogs available at the moment.
+          </p>
         </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="py-16 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-12 text-gray-800">
+          LATEST FROM OUR BLOGS
+        </h2>
+
         <div
-          onMouseEnter={() => setDivHover(true)}
-          onMouseLeave={() => setDivHover(false)}
+          className="relative"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
         >
-          <div className="cursor-pointer gap-4 p-10 w-[85%] m-auto relative overflow-hidden">
+          {/* Carousel container */}
+          <div
+            ref={containerRef}
+            className="overflow-hidden"
+            onTouchStart={handleStart}
+            onTouchMove={handleMove}
+            onTouchEnd={handleEnd}
+            onMouseDown={handleStart}
+            onMouseMove={handleMove}
+            onMouseUp={handleEnd}
+            onMouseLeave={handleEnd}
+          >
             <div
-              className="flex gap-5 transition-transform duration-700 ease-in-out"
+              className="flex transition-transform duration-500 ease-out"
               style={{
-                transform: `translateX(-${currentIndex * 325}px)`,
+                transform: `translateX(-${
+                  currentIndex * (100 / visibleItems)
+                }%)`,
+                width: `${(blogs.length / visibleItems) * 100}%`,
               }}
-              onTransitionEnd={handleTransitionEnd}
-              ref={containerRef}
-              onTouchStart={handleStart}
-              onTouchMove={handleMove}
-              onTouchEnd={handleEnd}
-              onMouseDown={handleStart}
-              onMouseMove={handleMove}
-              onMouseUp={handleEnd}
-              onMouseLeave={handleEnd}
             >
-              {blogs.map((item, index) => (
-                <Link to={`/blogs/${item._id}`} key={index}>
-                  <div className="shrink-0 relative overflow-hidden">
-                    <div className="absolute left-2 top-2 h-12 bg-white w-12 flex justify-center items-center flex-col z-10">
-                      <p className="text-xl">06</p>
-                      <p>DEC</p>
-                    </div>
-                    <img
-                      src={item.cover}
-                      alt={item.title}
-                      width={300}
-                      className="hover:scale-105 duration-300"
-                    />
-                    <p className="text-center rufina1 text-xl">{item.title}</p>
-                    {/* <p className="text-center text-lg">{item.author}</p> */}
-                    <p className="text-center rufina1 text-sm w-64 m-auto">
-                      {item.desc.slice(0, 20)}...
-                    </p>
+              {blogs.map((blog, index) => {
+                const { day, month } = formatDate(blog.createdAt || blog.date);
+
+                return (
+                  <div
+                    key={blog._id}
+                    className="px-3"
+                    style={{ flex: `0 0 ${100 / visibleItems}%` }}
+                  >
+                    <Link to={`/blogs/${blog._id}`}>
+                      <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+                        <div className="relative overflow-hidden">
+                          <div className="absolute top-4 left-4 z-10 bg-white rounded-md p-2 shadow-md flex flex-col items-center">
+                            <span className="font-bold text-lg text-gray-800">
+                              {day}
+                            </span>
+                            <span className="text-xs font-semibold text-primary-color">
+                              {month}
+                            </span>
+                          </div>
+                          <img
+                            src={blog.cover}
+                            alt={blog.title}
+                            className="w-full h-48 object-cover transition-transform duration-500 hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-black opacity-0 hover:opacity-10 transition-opacity duration-300"></div>
+                        </div>
+
+                        <div className="p-5 flex-grow">
+                          <h3 className="font-semibold text-lg mb-2 text-gray-800 line-clamp-2">
+                            {blog.title}
+                          </h3>
+                          <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                            {blog.desc}
+                          </p>
+                          <div className="flex items-center text-sm text-gray-500 mt-auto">
+                            <FaCalendarAlt className="mr-2" />
+                            <span>
+                              {blog.createdAt
+                                ? new Date(blog.createdAt).toLocaleDateString()
+                                : "Recent"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
                   </div>
-                </Link>
-              ))}
-              {/* Duplicate for infinite scroll */}
-              {blogs.map((item, index) => (
-                <div
-                  key={`duplicate-${index}`}
-                  className="shrink-0 relative overflow-hidden"
-                >
-                  <div className="absolute left-2 top-2 h-12 bg-white w-12 flex justify-center items-center flex-col z-10">
-                    <p className="text-xl">06</p>
-                    <p>DEC</p>
-                  </div>
-                  <img
-                    src={item.cover}
-                    alt={item.title}
-                    width={300}
-                    className="hover:scale-105 duration-300"
-                  />
-                  <p className="text-center rufina1 text-xl">{item.title}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
-          {/* Arrows only if width ≥ 390px */}
-          {!isMobile && (
-            <div
-              className={`absolute bottom-[5%] left-14 right-14 flex justify-between items-center px-10 transition-opacity duration-500 ${
-                isDivHover ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              <div
-                className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
-                onClick={leftHandler}
+          {/* Navigation arrows */}
+          {blogs.length > visibleItems && (
+            <>
+              <button
+                onClick={prevSlide}
+                className={`absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 bg-white rounded-full p-3 shadow-lg hover:bg-primary-color hover:text-white transition-all duration-300 ${
+                  isHovered ? "opacity-100" : "opacity-0"
+                } md:opacity-100`}
+                aria-label="Previous blog"
               >
-                <FaChevronLeft style={{ fontSize: 40 }} />
-              </div>
-              <div
-                className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
-                onClick={rightHandler}
+                <FaChevronLeft size={20} />
+              </button>
+
+              <button
+                onClick={nextSlide}
+                className={`absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 bg-white rounded-full p-3 shadow-lg hover:bg-primary-color hover:text-white transition-all duration-300 ${
+                  isHovered ? "opacity-100" : "opacity-0"
+                } md:opacity-100`}
+                aria-label="Next blog"
               >
-                <FaChevronRight style={{ fontSize: 40 }} />
-              </div>
+                <FaChevronRight size={20} />
+              </button>
+            </>
+          )}
+
+          {/* Indicators */}
+          {blogs.length > visibleItems && (
+            <div className="flex justify-center mt-8">
+              {Array.from({
+                length: Math.ceil(blogs.length / visibleItems),
+              }).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index * visibleItems)}
+                  className={`h-2 mx-1 rounded-full transition-all duration-300 ${
+                    currentIndex >= index * visibleItems &&
+                    currentIndex < (index + 1) * visibleItems
+                      ? "bg-primary-color w-8"
+                      : "bg-gray-300 w-2"
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
             </div>
           )}
         </div>
-      </section>
-    </div>
+
+        {/* View all button */}
+        <div className="text-center mt-12">
+          <Link
+            to="/blogs"
+            className="inline-block bg-primary-color text-white px-6 py-3 rounded-md hover:bg-opacity-90 transition-colors duration-300 font-medium"
+          >
+            View All Blogs
+          </Link>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .line-clamp-3 {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      `}</style>
+    </section>
   );
 };
 

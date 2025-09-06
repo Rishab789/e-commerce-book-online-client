@@ -303,9 +303,9 @@ const SearchLogoCart = () => {
         </div>
 
         {/* Logo */}
-        <div className="lg:absolute right-[45%]">
+        <div className="lg:absolute right-[40%]">
           <Link to="/">
-            <img src={logo} className="w-28 md:w-40 lg:w-52 md:h-40 lg:h-40" />
+            <img src={logo} className="w-28 md:w-40 lg:w-52 md:h-48 lg:h-48" />
           </Link>
         </div>
 

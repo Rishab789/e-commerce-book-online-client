@@ -5,7 +5,7 @@ import { LoadingContext } from "../contexts/LoadingContext";
 import loader from "../assets/truckLoader.json";
 import Lottie from "lottie-react";
 
-const AddReview = ({ id, name, setIsReview, setIsLoading }) => {
+const AddReview = ({ id, name, setIsReview, setIsLoading, type }) => {
   const url = process.env.REACT_APP_URL;
 
   const [hover, setHover] = useState(0);
@@ -47,13 +47,22 @@ const AddReview = ({ id, name, setIsReview, setIsLoading }) => {
     try {
       setLoading(true);
       setIsLoading(true);
-      const response = await fetch(`${url}/api/v1/uploadReviewsById`, {
-        method: "POST",
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: formData,
-      });
+      const response =
+        type === "ebook"
+          ? await fetch(`${url}/api/v1/uploadReviewsEbookById`, {
+              method: "POST",
+              headers: {
+                "Access-Control-Allow-Origin": "*",
+              },
+              body: formData,
+            })
+          : await fetch(`${url}/api/v1/uploadReviewsById`, {
+              method: "POST",
+              headers: {
+                "Access-Control-Allow-Origin": "*",
+              },
+              body: formData,
+            });
 
       const data = await response.json();
       console.log("this is the response coming ", data);

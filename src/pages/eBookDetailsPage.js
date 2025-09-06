@@ -8,6 +8,8 @@ import AddReview from "../components/AddReview";
 import Button from "../components/Button";
 import { IoMdHeart } from "react-icons/io";
 import { booksData } from "../services/booksData";
+import axios from "axios";
+import { CartContext } from "../contexts/cart.context";
 
 export const EBooksDetailsPageComponent = () => {
   const { id } = useParams();
@@ -18,54 +20,96 @@ export const EBooksDetailsPageComponent = () => {
   const [bookGenre, setGenre] = useState("");
   const [isReview, setIsReview] = useState(false);
   const [counter, setCounter] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
   // const dispatch = useDispatch();
   // const cartData = useSelector((state) => state.cart);
   const [cart, setCart] = useState([]);
 
   const { userId } = useContext(LogInContext); // Extract userId from context
+  const { setProducts, products, fetchCart } = useContext(CartContext);
 
-  let products;
+  const API_BASE = `${process.env.REACT_APP_URL}/api/v1`;
 
-  const getLocalStorage = () => {
+  // let products;
+
+  // const getLocalStorage = () => {
+  //   if (!userId) {
+  //     return;
+  //   }
+  //   const userCartKey = `cart_${userId}`;
+
+  //   // products = JSON.parse(localStorage.getItem("products") || "[]");
+  //   const products = JSON.parse(localStorage.getItem(userCartKey)) || [];
+
+  //   setCart(products);
+  // };
+
+  // const addToLocalStorage = (ebook) => {
+  //   if (!ebook || !ebook._id || !userId) {
+  //     // toast.error("Please log in to add items to your cart.");
+
+  //     return;
+  //   }
+
+  //   const userCartKey = `cart_${userId}`;
+
+  //   // const existingCart = JSON.parse(localStorage.getItem("products")) || [];
+  //   const existingCart = JSON.parse(localStorage.getItem(userCartKey)) || [];
+
+  //   // Check if book is already in cart
+  //   const iseBookInCart = existingCart.some((item) => item._id === ebook._id);
+
+  //   if (!iseBookInCart) {
+  //     const updatedCart = [...existingCart, ebook];
+  //     // localStorage.setItem("products", JSON.stringify(updatedCart));
+  //     localStorage.setItem(userCartKey, JSON.stringify(updatedCart));
+
+  //     setCart(updatedCart);
+  //   }
+  // };
+
+  // ✅ Add to cart API call
+  const handleAddToCart = async () => {
     if (!userId) {
-      return;
-    }
-    const userCartKey = `cart_${userId}`;
-
-    // products = JSON.parse(localStorage.getItem("products") || "[]");
-    const products = JSON.parse(localStorage.getItem(userCartKey)) || [];
-
-    setCart(products);
-  };
-
-  const addToLocalStorage = (ebook) => {
-    if (!ebook || !ebook._id || !userId) {
-      // toast.error("Please log in to add items to your cart.");
-
+      toast.error("Please log in first!");
       return;
     }
 
-    const userCartKey = `cart_${userId}`;
+    try {
+      setIsLoading(true);
 
-    // const existingCart = JSON.parse(localStorage.getItem("products")) || [];
-    const existingCart = JSON.parse(localStorage.getItem(userCartKey)) || [];
+      const payload = {
+        userId,
+        productId: ebooksDetails._id,
+        title: ebooksDetails.title,
+        image: ebooksDetails.imageFile,
+        price: ebooksDetails.price,
+        quantity: counter,
+      };
 
-    // Check if book is already in cart
-    const iseBookInCart = existingCart.some((item) => item._id === ebook._id);
+      const res = await axios.post(`${API_BASE}/cart`, payload, {
+        withCredentials: true,
+      });
 
-    if (!iseBookInCart) {
-      const updatedCart = [...existingCart, ebook];
-      // localStorage.setItem("products", JSON.stringify(updatedCart));
-      localStorage.setItem(userCartKey, JSON.stringify(updatedCart));
-
-      setCart(updatedCart);
+      if (res.data.success) {
+        toast.success("Product added to cart!");
+        setProducts((prev) => [...prev, payload]);
+        await fetchCart();
+      } else {
+        toast.error(res.data.message || "Failed to add to cart");
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error("Something went wrong!");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     // getAllProducts();
-    getLocalStorage();
+    // getLocalStorage();
     const ebooks = eBooks.find((item) => item._id === id);
     setGenre(booksData[0].genre);
 
@@ -121,6 +165,8 @@ export const EBooksDetailsPageComponent = () => {
                   id={ebooksDetails._id}
                   name="ebook user"
                   setIsReview={setIsReview}
+                  setIsLoading={setIsLoading}
+                  type={ebooksDetails.type}
                 />
               )}
             </div>
@@ -167,19 +213,7 @@ export const EBooksDetailsPageComponent = () => {
               <Button
                 value="Add to Cart"
                 color="sign-color"
-                onClick={() => {
-                  addToLocalStorage({
-                    _id: ebooksDetails._id,
-                    image: ebooksDetails.imageFile,
-                    title: ebooksDetails.title,
-                    price: ebooksDetails.price,
-                    type: ebooksDetails.type,
-                    quantity: counter,
-                  });
-                  // addToLocalStorage();
-
-                  toast.success("Product added to cart");
-                }}
+                onClick={handleAddToCart}
               />
               <p className="flex items-center ">
                 Add to Wishlist{" "}
