@@ -10,7 +10,7 @@ function Contact() {
     <section className="px-5 mt-10">
       <div>
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.4711782548684!2d78.44606377412507!3d17.437148101371815!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb91619a07c2f7%3A0x1dfdab3926922ef3!2sAAA%20Cinemas!5e0!3m2!1sen!2sin!4v1733151768761!5m2!1sen!2sin"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d117881.84729119905!2d88.4103982763426!3d22.58629344235402!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a0275350398a5b9%3A0x75e165b244323425!2sNewtown%2C%20Kolkata%2C%20West%20Bengal!5e0!3m2!1sen!2sin!4v1757140319518!5m2!1sen!2sin"
           width="600"
           height="450"
           allowfullscreen

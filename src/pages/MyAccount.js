@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
+import AreYouSure from "../modals/AreYouSure";
 
 const MyAccount = () => {
   const menu = [
@@ -30,8 +31,21 @@ const MyAccount = () => {
     },
   ];
 
+  const [isLogOut, setIsLogOut] = useState(false);
+
+  const logOuthandler = () => {
+    setIsLogOut(true);
+  };
+
   return (
     <div className="">
+      <div>
+        <AreYouSure
+          className={`absolute top-1/4 left-16 md:left-1/3 lg:left-1/3 z-20 ${
+            isLogOut ? "block" : "hidden"
+          } `}
+        />
+      </div>
       <div className=" px-1 md:px-12 lg:px-14">
         <p className="text-3xl border-b-2 pt-5">My-Account</p>
         {/* Main Container  */}
@@ -39,17 +53,25 @@ const MyAccount = () => {
           {/* Left Container  */}
           <div className=" md:w-1/4 lg:w-1/4 ">
             <ul className="border flex flex-col ">
-              {menu.map((item, index) => (
-                <Link to={item.path}>
+              {menu.map((item, index) =>
+                item.path === "/signin" ? (
                   <li
                     key={index}
-                    className="flex items-center gap-3 border-b-[1px] pl-5 border-gray-300 hover:bg-secondary-color duration-200 hover:text-white  py-3"
+                    onClick={logOuthandler}
+                    className="flex items-center gap-3 border-b-[1px] pl-5 border-gray-300 hover:bg-secondary-color duration-200 hover:text-white py-3 cursor-pointer"
                   >
                     <i className={item.icon}></i>
                     <p>{item.title}</p>
                   </li>
-                </Link>
-              ))}
+                ) : (
+                  <Link to={item.path} key={index}>
+                    <li className="flex items-center gap-3 border-b-[1px] pl-5 border-gray-300 hover:bg-secondary-color duration-200 hover:text-white py-3">
+                      <i className={item.icon}></i>
+                      <p>{item.title}</p>
+                    </li>
+                  </Link>
+                )
+              )}
             </ul>
           </div>
           {/* right Container  */}
