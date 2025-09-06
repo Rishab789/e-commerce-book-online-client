@@ -22,7 +22,7 @@ export function LoginConextProvider({ children }) {
   // Load token from cookies on initial render
   // useEffect(() => {
   //   console.log("this is auth ", auth);
-  //   const token = Cookies.get("authToken");
+  //   const token = Cookies.get("token");
   //   if (token) {
   //     setAuth({
   //       isLoggedIn: true,
@@ -32,7 +32,7 @@ export function LoginConextProvider({ children }) {
   // }, []);
 
   useEffect(() => {
-    const token = Cookies.get("authToken");
+    const token = Cookies.get("token");
     // const decodedToken = jwt_decode(token);
 
     if (token) {
@@ -49,7 +49,7 @@ export function LoginConextProvider({ children }) {
           setUserId(decodedToken.id); // Set userId from the token
         } else {
           // Token is expired, remove it
-          Cookies.remove("authToken");
+          Cookies.remove("token");
           setAuth({
             isLoggedIn: false,
             token: null,
@@ -58,7 +58,7 @@ export function LoginConextProvider({ children }) {
         }
       } catch (err) {
         console.error("Error decoding token:", err);
-        Cookies.remove("authToken");
+        Cookies.remove("token");
         setAuth({
           isLoggedIn: false,
           token: null,
@@ -71,7 +71,7 @@ export function LoginConextProvider({ children }) {
   const login = (token, userId) => {
     console.log("Token retrieved from cookies:", token);
 
-    Cookies.set("authToken", token);
+    Cookies.set("token", token);
 
     setAuth({
       isLoggedIn: true,
@@ -117,7 +117,7 @@ export function LoginConextProvider({ children }) {
     }
   };
   const logout = () => {
-    Cookies.remove("authToken"); // Remove token from cookies
+    Cookies.remove("token"); // Remove token from cookies
     setAuth({
       isLoggedIn: false,
       token: null,
