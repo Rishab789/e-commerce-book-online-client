@@ -11,37 +11,38 @@ const AddressAccount = () => {
   const [addresses, setAddresses] = useState([]);
   const [editingAddress, setEditingAddress] = useState(null);
   const { userId } = useContext(LogInContext);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
 
-  const [selectedAddressId, setSelectedAddressId] = useState(() => {
-    // Get selected address from localStorage based on userId
-    if (userId) {
-      return localStorage.getItem(`selectedAddressId_${userId}`) || null;
-    }
-    return null;
-  });
+  // const [selectedAddressId, setSelectedAddressId] = useState(() => {
+  //   // Get selected address from localStorage based on userId
+  //   if (userId) {
+  //     return localStorage.getItem(`selectedAddressId_${userId}`) || null;
+  //   }
+  //   return null;
+  // });
 
-  // Persist selected address to localStorage whenever it changes
-  useEffect(() => {
-    if (userId) {
-      if (selectedAddressId) {
-        localStorage.setItem(`selectedAddressId_${userId}`, selectedAddressId);
-      } else {
-        localStorage.removeItem(`selectedAddressId_${userId}`);
-      }
-    }
-  }, [selectedAddressId, userId]);
+  // // Persist selected address to localStorage whenever it changes
+  // useEffect(() => {
+  //   if (userId) {
+  //     if (selectedAddressId) {
+  //       localStorage.setItem(`selectedAddressId_${userId}`, selectedAddressId);
+  //     } else {
+  //       localStorage.removeItem(`selectedAddressId_${userId}`);
+  //     }
+  //   }
+  // }, [selectedAddressId, userId]);
 
-  // Update selectedAddressId when userId changes (user login/logout)
-  useEffect(() => {
-    if (userId) {
-      const userSpecificSelectedId = localStorage.getItem(
-        `selectedAddressId_${userId}`
-      );
-      setSelectedAddressId(userSpecificSelectedId);
-    } else {
-      setSelectedAddressId(null);
-    }
-  }, [userId]);
+  // // Update selectedAddressId when userId changes (user login/logout)
+  // useEffect(() => {
+  //   if (userId) {
+  //     const userSpecificSelectedId = localStorage.getItem(
+  //       `selectedAddressId_${userId}`
+  //     );
+  //     setSelectedAddressId(userSpecificSelectedId);
+  //   } else {
+  //     setSelectedAddressId(null);
+  //   }
+  // }, [userId]);
 
   // Fetch addresses from API
   useEffect(() => {
@@ -50,11 +51,26 @@ const AddressAccount = () => {
     }
   }, [userId]);
 
+  // const fetchAddresses = async (userId) => {
+  //   console.log("this is coming from getaddress ", userId);
+  //   try {
+  //     const res = await axios.get(`${API_BASE}/getAddresses/${userId}`);
+  //     setAddresses(res.data.addresses || []);
+  //   } catch (err) {
+  //     console.error("Error fetching addresses:", err);
+  //   }
+  // };
+
   const fetchAddresses = async (userId) => {
-    console.log("this is coming from getaddress ", userId);
     try {
       const res = await axios.get(`${API_BASE}/getAddresses/${userId}`);
       setAddresses(res.data.addresses || []);
+
+      // Find default address
+      const defaultAddr = res.data.addresses.find((a) => a.isDefault);
+      if (defaultAddr) {
+        setSelectedAddressId(defaultAddr._id);
+      }
     } catch (err) {
       console.error("Error fetching addresses:", err);
     }
@@ -95,27 +111,41 @@ const AddressAccount = () => {
     }
   };
 
-  // Handle address selection
-  const handleSelectAddress = (address) => {
-    setSelectedAddressId(address._id);
+  // // Handle address selection
+  // const handleSelectAddress = (address) => {
+  //   setSelectedAddressId(address._id);
 
-    // Store the complete address data in localStorage with userId prefix
-    const addressData = {
-      firstName: address.firstName,
-      lastName: address.lastName,
-      email: address.email,
-      phone: address.phone,
-      street: address.address.street,
-      landmark: address.address.landmark || "",
-      city: address.address.city,
-      state: address.address.state,
-      pincode: address.address.pincode,
-    };
+  //   // Store the complete address data in localStorage with userId prefix
+  //   const addressData = {
+  //     firstName: address.firstName,
+  //     lastName: address.lastName,
+  //     email: address.email,
+  //     phone: address.phone,
+  //     street: address.address.street,
+  //     landmark: address.address.landmark || "",
+  //     city: address.address.city,
+  //     state: address.address.state,
+  //     pincode: address.address.pincode,
+  //   };
 
-    localStorage.setItem(
-      `selectedAddressData_${userId}`,
-      JSON.stringify(addressData)
-    );
+  //   localStorage.setItem(
+  //     `selectedAddressData_${userId}`,
+  //     JSON.stringify(addressData)
+  //   );
+  // };
+
+  const handleSelectAddress = async (address) => {
+    try {
+      await axios.patch(`${API_BASE}/setDefaultAddress`, {
+        userId,
+        addressId: address._id,
+      });
+
+      setSelectedAddressId(address._id); // Update state
+      fetchAddresses(userId); // Refresh the list to reflect default change
+    } catch (err) {
+      console.error("Error setting default address:", err);
+    }
   };
 
   return (
