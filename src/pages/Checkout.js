@@ -35,11 +35,10 @@ const Checkout = () => {
   // ✅ Load Cashfree
   useEffect(() => {
     (async () => {
-      cashfreeRef.current = await load({ mode: "production" });
+      cashfreeRef.current = await load({ mode: "sandbox" });
     })();
   }, []);
 
-  // ✅ Fetch default address from DB
   useEffect(() => {
     const fetchDefaultAddress = async () => {
       if (!userId) return;
@@ -70,7 +69,6 @@ const Checkout = () => {
     fetchDefaultAddress();
   }, [userId, url]);
 
-  // ✅ Clear form if user logs out
   useEffect(() => {
     if (!userId) {
       setFormData({
@@ -108,16 +106,6 @@ const Checkout = () => {
   const validateState = (val) => (!val.trim() ? "State is required" : "");
   const validatePincode = (val) =>
     /^[1-9][0-9]{5}$/.test(val) ? "" : "Enter a valid 6-digit pin code";
-
-  // ---------------- PAYMENT ----------------
-  // const verifyPayment = async (orderId) => {
-  //   try {
-  //     const res = await axios.post(`${url}/api/v1/verify`, { orderId });
-  //     if (res.data) alert("✅ Payment Verified Successfully");
-  //   } catch (err) {
-  //     console.error("❌ Payment verification error", err);
-  //   }
-  // };
 
   const formSubmit = async (e) => {
     e.preventDefault();
@@ -166,6 +154,7 @@ const Checkout = () => {
     }));
 
     const customer = {
+      userId: userId,
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
@@ -195,25 +184,31 @@ const Checkout = () => {
       placedAt: new Date().toISOString(),
     };
 
-    try {
-      const res = await axios.get(`${url}/api/v1/payment`);
-      if (!res.data?.payment_session_id) {
-        console.error("Missing payment session");
-        return;
-      }
+    console.log("this is the order data ", orderData);
 
-      const { payment_session_id, order_id } = res.data;
-      await cashfreeRef.current
-        .checkout({
-          paymentSessionId: payment_session_id,
-          redirectTarget: "_modal",
-        })
-        .then(() => {
-          // verifyPayment(order_id)
-          navigate(`/payment-success?${order_id}`);
+    try {
+      const response = await fetch(`${url}/api/v1/orderPlace`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log("this is the response coming from form submit", data);
+        navigate("/payment-success", {
+          state: {
+            orderId: data.orderId,
+            paymentSessionId: data.paymentSessionId,
+            bookingData: orderData,
+          },
         });
+      } else {
+        alert("order failed. Please try again");
+      }
     } catch (err) {
-      console.error("Payment flow error:", err);
+      console.log("Network Error. Please check your connection ");
     }
   };
 
