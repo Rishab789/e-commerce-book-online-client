@@ -41,6 +41,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import VerifyEmail from "./components/VerifyEmail";
 import NotFoundPage from "./pages/NotFoundPage ";
 import { CartContextProvider } from "./contexts/cart.context";
+import PaymentVerification from "./pages/PaymentVerification";
 
 const root = createRoot(document.getElementById("root"));
 console.log("Client ID:", process.env.REACT_APP_CLIENT_ID);
@@ -69,6 +70,10 @@ const appRouter = createBrowserRouter([
       {
         path: "/",
         element: <Home />,
+      },
+      {
+        path: "/payment-success",
+        element: <PaymentVerification />,
       },
       {
         path: "/cart",
