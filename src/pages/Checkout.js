@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import Button from "../components/Button";
 import "./Checkout.css";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { load } from "@cashfreepayments/cashfree-js";
 import { LogInContext } from "../contexts/LogInContext";
@@ -10,6 +10,7 @@ const Checkout = () => {
   const cashfreeRef = useRef(null);
   const { userId } = useContext(LogInContext);
   const url = process.env.REACT_APP_URL;
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -34,7 +35,7 @@ const Checkout = () => {
   // ✅ Load Cashfree
   useEffect(() => {
     (async () => {
-      cashfreeRef.current = await load({ mode: "sandbox" });
+      cashfreeRef.current = await load({ mode: "production" });
     })();
   }, []);
 
@@ -109,14 +110,14 @@ const Checkout = () => {
     /^[1-9][0-9]{5}$/.test(val) ? "" : "Enter a valid 6-digit pin code";
 
   // ---------------- PAYMENT ----------------
-  const verifyPayment = async (orderId) => {
-    try {
-      const res = await axios.post(`${url}/api/v1/verify`, { orderId });
-      if (res.data) alert("✅ Payment Verified Successfully");
-    } catch (err) {
-      console.error("❌ Payment verification error", err);
-    }
-  };
+  // const verifyPayment = async (orderId) => {
+  //   try {
+  //     const res = await axios.post(`${url}/api/v1/verify`, { orderId });
+  //     if (res.data) alert("✅ Payment Verified Successfully");
+  //   } catch (err) {
+  //     console.error("❌ Payment verification error", err);
+  //   }
+  // };
 
   const formSubmit = async (e) => {
     e.preventDefault();
@@ -201,13 +202,16 @@ const Checkout = () => {
         return;
       }
 
-      const { payment_session_id, cf_order_id } = res.data;
+      const { payment_session_id, order_id } = res.data;
       await cashfreeRef.current
         .checkout({
           paymentSessionId: payment_session_id,
           redirectTarget: "_modal",
         })
-        .then(() => verifyPayment(cf_order_id));
+        .then(() => {
+          // verifyPayment(order_id)
+          navigate(`/payment-success?${order_id}`);
+        });
     } catch (err) {
       console.error("Payment flow error:", err);
     }
