@@ -28,7 +28,47 @@ const OrderAccount = () => {
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [cancellingOrder, setCancellingOrder] = useState(null);
   const [cancelMessage, setCancelMessage] = useState({ type: "", text: "" });
-  // This useEffect will run when the component mounts AND when userId changes
+  const [showTrackingModal, setShowTrackingModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  // Dummy tracking data
+  const dummyTrackingData = {
+    trackingId: "AWB123456789",
+    status: "In Transit",
+    events: [
+      {
+        status: "Order Placed",
+        date: "2025-09-07 10:30 AM",
+        location: "Mumbai, MH",
+        details: "Order has been successfully placed",
+      },
+      {
+        status: "Processing",
+        date: "2025-09-07 02:15 PM",
+        location: "Mumbai, MH",
+        details: "Order is being processed at the warehouse",
+      },
+      {
+        status: "Shipped",
+        date: "2025-09-08 09:00 AM",
+        location: "Pune, MH",
+        details: "Order has been shipped from the warehouse",
+      },
+      {
+        status: "In Transit",
+        date: "2025-09-08 03:45 PM",
+        location: "Nashik, MH",
+        details: "Package is in transit to destination",
+      },
+      {
+        status: "Out for Delivery",
+        date: "2025-09-09 08:00 AM",
+        location: "Delhi, DL",
+        details: "Package is out for delivery",
+      },
+    ],
+  };
+
   useEffect(() => {
     fetchUserOrders();
   }, [userId]);
@@ -99,10 +139,8 @@ const OrderAccount = () => {
           text: "Order cancelled successfully!",
         });
 
-        // Refresh orders list
         await fetchUserOrders();
 
-        // Clear success message after 3 seconds
         setTimeout(() => {
           setCancelMessage({ type: "", text: "" });
         }, 3000);
@@ -140,6 +178,11 @@ const OrderAccount = () => {
     } else {
       setExpandedOrder(orderId);
     }
+  };
+
+  const handleTrackOrder = (order) => {
+    setSelectedOrder(order);
+    setShowTrackingModal(true);
   };
 
   const getStatusBadge = (status) => {
@@ -286,7 +329,6 @@ const OrderAccount = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-3 sm:p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-          {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white flex items-center gap-2 sm:gap-3">
               <ShoppingBag size={24} className="sm:w-7 sm:h-7 md:w-8 md:h-8" />
@@ -323,13 +365,10 @@ const OrderAccount = () => {
                     key={order.id}
                     className="bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
                   >
-                    {/* Order Summary */}
                     <div className="bg-gradient-to-r from-gray-50 to-white p-4 sm:p-5 md:p-6">
                       <div className="flex flex-col space-y-3 sm:space-y-4">
-                        {/* Mobile and Tablet Layout */}
                         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3 md:gap-4">
                           <div className="flex-1 min-w-0">
-                            {/* Order ID and Status */}
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
                               <h3 className="text-lg sm:text-xl font-bold text-gray-800 truncate">
                                 Order #{order.channel_order_id || order.id}
@@ -338,8 +377,6 @@ const OrderAccount = () => {
                                 {getStatusBadge(order.status)}
                               </div>
                             </div>
-
-                            {/* Order Meta Info */}
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-gray-600 text-sm">
                               <div className="flex items-center gap-2">
                                 <Calendar size={14} className="flex-shrink-0" />
@@ -356,8 +393,6 @@ const OrderAccount = () => {
                               </div>
                             </div>
                           </div>
-
-                          {/* Order Total */}
                           <div className="text-left md:text-right flex-shrink-0">
                             <p className="text-xl sm:text-2xl font-bold text-gray-800">
                               {formatCurrency(order.net_total)}
@@ -366,8 +401,6 @@ const OrderAccount = () => {
                         </div>
                       </div>
                     </div>
-
-                    {/* Products Preview */}
                     <div className="px-4 py-3 sm:px-5 sm:py-4 md:px-6 bg-gray-25 border-t border-gray-100">
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                         <div className="flex-1 min-w-0">
@@ -418,13 +451,10 @@ const OrderAccount = () => {
                         </button>
                       </div>
                     </div>
-
-                    {/* Expanded Order Details */}
                     {expandedOrder === order.id && (
                       <div className="border-t border-gray-100 bg-white">
                         <div className="p-4 sm:p-5 md:p-6">
                           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-                            {/* Products Details */}
                             <div className="lg:col-span-2">
                               <div className="bg-gray-50 rounded-xl p-4 sm:p-5 md:p-6">
                                 <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
@@ -481,10 +511,7 @@ const OrderAccount = () => {
                                 </div>
                               </div>
                             </div>
-
-                            {/* Shipping and Payment Details */}
                             <div className="space-y-4 sm:space-y-6">
-                              {/* Shipping Details */}
                               <div className="bg-blue-50 rounded-xl p-4 sm:p-5 md:p-6">
                                 <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                                   <MapPin size={18} className="sm:w-5 sm:h-5" />
@@ -532,8 +559,6 @@ const OrderAccount = () => {
                                   )}
                                 </div>
                               </div>
-
-                              {/* Payment Details */}
                               <div className="bg-green-50 rounded-xl p-4 sm:p-5 md:p-6">
                                 <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                                   <CreditCard
@@ -560,10 +585,9 @@ const OrderAccount = () => {
                                   </div>
                                 </div>
                               </div>
-
-                              {/* Action Buttons */}
                               <div className="space-y-3">
                                 <Button
+                                  onClick={() => handleTrackOrder(order)}
                                   value="Track Order"
                                   color="primary"
                                   className="w-full px-4 py-3 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
@@ -573,6 +597,10 @@ const OrderAccount = () => {
                                   value="Cancel Order"
                                   color="secondary"
                                   className="w-full px-4 py-3 text-sm font-semibold rounded-xl border-2 hover:border-gray-400 transition-all"
+                                  disabled={
+                                    order.status === "CANCELLED" ||
+                                    order.status === "DELIVERED"
+                                  }
                                 />
                               </div>
                             </div>
@@ -587,6 +615,77 @@ const OrderAccount = () => {
           </div>
         </div>
       </div>
+
+      {/* Tracking Modal */}
+      {showTrackingModal && selectedOrder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <Truck size={24} />
+                  Track Order #
+                  {selectedOrder.channel_order_id || selectedOrder.id}
+                </h2>
+                <button
+                  onClick={() => setShowTrackingModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <XCircle size={24} />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Tracking ID and Status */}
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">
+                    Tracking ID
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {dummyTrackingData.trackingId}
+                  </p>
+                  <p className="text-sm font-semibold text-gray-700 mt-3">
+                    Current Status
+                  </p>
+                  {getStatusBadge(dummyTrackingData.status)}
+                </div>
+
+                {/* Tracking Timeline */}
+                <div>
+                  <h3 className="text-base font-bold text-gray-800 mb-4">
+                    Tracking History
+                  </h3>
+                  <div className="relative border-l-2 border-blue-200 pl-6">
+                    {dummyTrackingData.events.map((event, index) => (
+                      <div key={index} className="mb-6 relative">
+                        <div className="absolute -left-8 top-0 bg-blue-600 rounded-full w-4 h-4"></div>
+                        <p className="text-sm font-semibold text-gray-800">
+                          {event.status}
+                        </p>
+                        <p className="text-xs text-gray-600">{event.date}</p>
+                        <p className="text-xs text-gray-600">
+                          {event.location}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {event.details}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Close Button */}
+                <Button
+                  onClick={() => setShowTrackingModal(false)}
+                  value="Close"
+                  color="secondary"
+                  className="w-full px-4 py-3 text-sm font-semibold rounded-xl border-2 hover:border-gray-400 transition-all"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
