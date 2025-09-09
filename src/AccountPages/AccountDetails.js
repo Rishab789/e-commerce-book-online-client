@@ -1,68 +1,193 @@
-import React, { useContext, useEffect, useState } from "react";
-import axios from "axios";
-import Button from "../components/Button";
-import { LogInContext } from "../contexts/LogInContext";
+import React, { useState, useEffect, useContext } from "react";
+import Button from "../../src/components/Button";
+import { LogInContext } from "./../contexts/LogInContext"; // Import the context
 
-const AccountDetails = () => {
-  const [user, setUser] = useState(null);
-  const API_BASE = `${process.env.REACT_APP_URL}/api/v1`;
+const OrderAccount = () => {
   const { userId } = useContext(LogInContext);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Replace with the actual userId (from JWT, localStorage, or context)
-    if (!userId) return; // wait until userId is set
-    const fetchUser = async () => {
+    const fetchUserOrders = async () => {
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const res = await axios.get(
-          `${API_BASE}/getUser/${userId}`,
-          { withCredentials: true } // include cookies if using auth
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch(
+          `${process.env.REACT_APP_URL}/api/v1/getUserOrders?userId=${userId}`
         );
-        setUser(res.data.user);
+
+        const data = await response.json();
+
+        if (data.success) {
+          setOrders(data.data.orders);
+        } else {
+          setError("Failed to fetch orders");
+        }
       } catch (err) {
-        console.error("❌ Error fetching user:", err);
+        setError("Error fetching orders. Please try again.");
+        console.error("Error fetching orders:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchUser();
+    fetchUserOrders();
   }, [userId]);
 
-  return (
-    <div>
-      <p className="text-2xl border-b-2 mb-5">Account Details</p>
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
-      {user ? (
-        <div className="mb-5">
-          <p>Name: {user.name}</p>
-          <p className="text-sm lg:text-xl">Email: {user.email}</p>
+  const formatPrice = (price) => {
+    return `₹${price?.toLocaleString("en-IN")}/-` || "₹0/-";
+  };
+
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case "processing":
+      case "confirmed":
+        return "bg-orange-400";
+      case "shipped":
+        return "bg-blue-400";
+      case "delivered":
+        return "bg-green-400";
+      case "cancelled":
+        return "bg-red-400";
+      default:
+        return "bg-gray-400";
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="overflow-auto">
+        <p className="text-2xl border-b-2 mb-5">Orders</p>
+        <div className="flex justify-center items-center h-40">
+          <p>Loading orders...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="overflow-auto">
+        <p className="text-2xl border-b-2 mb-5">Orders</p>
+        <div className="flex justify-center items-center h-40">
+          <p className="text-red-500">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-auto">
+      <p className="text-2xl border-b-2 mb-5">Orders</p>
+
+      {orders.length === 0 ? (
+        <div className="flex justify-center items-center h-40">
+          <p>No orders found</p>
         </div>
       ) : (
-        <p>Loading user details...</p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-center border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="p-3 border">Order ID</th>
+                <th className="p-3 border">Products</th>
+                <th className="p-3 border">Date</th>
+                <th className="p-3 border">Status</th>
+                <th className="p-3 border">Total</th>
+                <th className="p-3 border">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order, index) => (
+                <tr key={order.order_id || index} className="hover:bg-gray-50">
+                  <td className="p-3 border">
+                    #{order.order_id || order.id || "N/A"}
+                  </td>
+                  <td className="p-3 border">
+                    {order.order_items?.map((item) => item.name).join(", ") ||
+                      "Unknown Product"}
+                  </td>
+                  <td className="p-3 border">
+                    {formatDate(order.order_date || order.created_at)}
+                  </td>
+                  <td className="p-3 border">
+                    <p
+                      className={`rounded-md text-white px-2 py-1 text-sm ${getStatusColor(
+                        order.status
+                      )}`}
+                    >
+                      {order.status || "Unknown"}
+                    </p>
+                  </td>
+                  <td className="p-3 border">
+                    {formatPrice(order.order_amount || order.total)}
+                  </td>
+                  <td className="p-3 border">
+                    {order.status !== "cancelled" &&
+                      order.status !== "delivered" && (
+                        <Button
+                          value="Cancel"
+                          color="sign-color"
+                          className="text-sm px-3 py-1"
+                          onClick={() => handleCancelOrder(order.order_id)}
+                        />
+                      )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-
-      {/* If you want to enable password change form later */}
-      {/* <div>
-        <form>
-          <div className="mb-2">
-            <p>New Password</p>
-            <input
-              type="password"
-              placeholder="New Password"
-              className="h-10 border border-black w-full md:w-1/2 lg:w-1/2 px-2"
-            />
-          </div>
-          <div>
-            <p>Confirm Password</p>
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              className="h-10 border w-full md:w-1/2 lg:w-1/2 border-black px-2"
-            />
-          </div>
-          <Button value="SAVE CHANGES" color="sign-color" className="mt-5" />
-        </form>
-      </div> */}
     </div>
   );
 };
 
-export default AccountDetails;
+// Optional: Add cancel order function
+const handleCancelOrder = async (orderId) => {
+  if (window.confirm("Are you sure you want to cancel this order?")) {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_URL}/api/v1/cancelOrder`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ orderId }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("Order cancelled successfully");
+        // Refresh orders
+        window.location.reload();
+      } else {
+        alert("Failed to cancel order");
+      }
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      alert("Error cancelling order");
+    }
+  }
+};
+
+export default OrderAccount;
