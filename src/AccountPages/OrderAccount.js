@@ -16,8 +16,7 @@ import {
   XCircle,
   AlertCircle,
   ShoppingBag,
-  User,
-  Menu,
+  Loader,
 } from "lucide-react";
 
 const OrderAccount = () => {
@@ -30,44 +29,9 @@ const OrderAccount = () => {
   const [cancelMessage, setCancelMessage] = useState({ type: "", text: "" });
   const [showTrackingModal, setShowTrackingModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-
-  // Dummy tracking data
-  const dummyTrackingData = {
-    trackingId: "AWB123456789",
-    status: "In Transit",
-    events: [
-      {
-        status: "Order Placed",
-        date: "2025-09-07 10:30 AM",
-        location: "Mumbai, MH",
-        details: "Order has been successfully placed",
-      },
-      {
-        status: "Processing",
-        date: "2025-09-07 02:15 PM",
-        location: "Mumbai, MH",
-        details: "Order is being processed at the warehouse",
-      },
-      {
-        status: "Shipped",
-        date: "2025-09-08 09:00 AM",
-        location: "Pune, MH",
-        details: "Order has been shipped from the warehouse",
-      },
-      {
-        status: "In Transit",
-        date: "2025-09-08 03:45 PM",
-        location: "Nashik, MH",
-        details: "Package is in transit to destination",
-      },
-      {
-        status: "Out for Delivery",
-        date: "2025-09-09 08:00 AM",
-        location: "Delhi, DL",
-        details: "Package is out for delivery",
-      },
-    ],
-  };
+  const [trackingData, setTrackingData] = useState(null);
+  const [trackingLoading, setTrackingLoading] = useState(false);
+  const [trackingError, setTrackingError] = useState(null);
 
   useEffect(() => {
     fetchUserOrders();
@@ -104,6 +68,32 @@ const OrderAccount = () => {
       console.error("Error fetching orders:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTrackingDetails = async () => {
+    try {
+      setTrackingLoading(true);
+      setTrackingError(null);
+      setTrackingData(null);
+
+      const response = await fetch(
+        `${process.env.REACT_APP_URL}/api/v1/getTrackingDetails/${userId}`
+      );
+
+      const data = await response.json();
+      console.log("Tracking API response:", data);
+
+      if (data.success) {
+        setTrackingData(data);
+      } else {
+        throw new Error(data.message || "Failed to fetch tracking details");
+      }
+    } catch (err) {
+      setTrackingError(err.message || "Error fetching tracking details");
+      console.error("Tracking error:", err);
+    } finally {
+      setTrackingLoading(false);
     }
   };
 
@@ -165,6 +155,8 @@ const OrderAccount = () => {
       day: "2-digit",
       month: "short",
       year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -180,9 +172,14 @@ const OrderAccount = () => {
     }
   };
 
-  const handleTrackOrder = (order) => {
+  const handleTrackOrder = async (order) => {
     setSelectedOrder(order);
     setShowTrackingModal(true);
+    setTrackingData(null);
+    setTrackingError(null);
+
+    // Fetch tracking details when modal opens
+    await fetchTrackingDetails();
   };
 
   const getStatusBadge = (status) => {
@@ -214,6 +211,11 @@ const OrderAccount = () => {
         icon: XCircle,
         bgGradient: "from-red-50 to-red-100",
       },
+      PENDING: {
+        color: "bg-gray-50 text-gray-700 border-gray-200 shadow-gray-100",
+        icon: Clock,
+        bgGradient: "from-gray-50 to-gray-100",
+      },
     };
 
     const config =
@@ -243,6 +245,22 @@ const OrderAccount = () => {
     }
   };
 
+  const getTrackingStatusIcon = (status) => {
+    const statusIcons = {
+      "Order Placed": Package,
+      Processing: Clock,
+      Shipped: Truck,
+      "In Transit": Truck,
+      "Out for Delivery": Truck,
+      Delivered: CheckCircle,
+      Cancelled: XCircle,
+      Pending: Clock,
+    };
+
+    const IconComponent = statusIcons[status] || Package;
+    return <IconComponent size={16} />;
+  };
+
   const LoadingSpinner = () => (
     <div className="flex justify-center items-center h-48 sm:h-56 md:h-64">
       <div className="relative">
@@ -266,7 +284,7 @@ const OrderAccount = () => {
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white flex items-center gap-2 sm:gap-3">
                 <ShoppingBag
                   size={24}
-                  className="sm:w-7 sm:h-7 md:w-8 md:h-8"
+                  className="sm.w-7 sm:h-7 md:w-8 md:h-8"
                 />
                 My Orders
               </h1>
@@ -291,7 +309,7 @@ const OrderAccount = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-3 sm:p-4 md:p-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6">
+            <div className="bg-gradient.to-r from-blue-600 to-purple-600 px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white flex items-center gap-2 sm:gap-3">
                 <ShoppingBag
                   size={24}
@@ -409,7 +427,7 @@ const OrderAccount = () => {
                           </p>
                           <div className="flex flex-wrap gap-1 sm:gap-2">
                             {order.products?.slice(0, 2).map((product, idx) => (
-                              <span key={product.id} className="inline-block">
+                              <span key={idx} className="inline-block">
                                 <span className="bg-blue-50 text-blue-700 px-2 sm:px-3 py-1 rounded-full text-xs font-medium">
                                   {product.name} ({product.quantity})
                                 </span>
@@ -465,9 +483,9 @@ const OrderAccount = () => {
                                   Products
                                 </h3>
                                 <div className="space-y-3 sm:space-y-4">
-                                  {order.products?.map((product) => (
+                                  {order.products?.map((product, idx) => (
                                     <div
-                                      key={product.id}
+                                      key={idx}
                                       className="bg-white rounded-lg p-3 sm:p-4 shadow-sm border border-gray-100"
                                     >
                                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
@@ -539,22 +557,14 @@ const OrderAccount = () => {
                                       {order.sla || "Not specified"}
                                     </p>
                                   </div>
-                                  {order.shipments && (
+                                  {order.shipment_id && (
                                     <div>
                                       <p className="text-sm font-semibold text-gray-700 mb-1">
-                                        Shipment Status
+                                        Shipment ID
                                       </p>
-                                      <p className="text-sm text-gray-600 capitalize">
-                                        {order.shipments.status}
+                                      <p className="text-sm text-gray-600 break-all">
+                                        {order.shipment_id}
                                       </p>
-                                      {order.shipments.awb && (
-                                        <p className="text-sm text-gray-600 mt-1 break-all">
-                                          <span className="font-medium">
-                                            Tracking ID:
-                                          </span>{" "}
-                                          {order.shipments.awb}
-                                        </p>
-                                      )}
                                     </div>
                                   )}
                                 </div>
@@ -635,53 +645,141 @@ const OrderAccount = () => {
                 </button>
               </div>
 
-              <div className="space-y-6">
-                {/* Tracking ID and Status */}
-                <div>
-                  <p className="text-sm font-semibold text-gray-700">
-                    Tracking ID
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {dummyTrackingData.trackingId}
-                  </p>
-                  <p className="text-sm font-semibold text-gray-700 mt-3">
-                    Current Status
-                  </p>
-                  {getStatusBadge(dummyTrackingData.status)}
+              {trackingLoading ? (
+                <div className="flex justify-center items-center h-40">
+                  <Loader size={32} className="animate-spin text-blue-600" />
+                  <span className="ml-3 text-gray-600">
+                    Loading tracking details...
+                  </span>
                 </div>
+              ) : trackingError ? (
+                <div className="text-center p-6">
+                  <AlertCircle
+                    size={48}
+                    className="text-red-500 mx-auto mb-4"
+                  />
+                  <p className="text-red-600 mb-4">{trackingError}</p>
+                  <Button
+                    onClick={fetchTrackingDetails}
+                    value="Retry"
+                    color="primary"
+                    className="px-4 py-2"
+                  />
+                </div>
+              ) : trackingData ? (
+                <div className="space-y-6">
+                  {/* Tracking ID and Status */}
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700">
+                      Tracking ID
+                    </p>
+                    <p className="text-sm text-gray-600 font-mono">
+                      {trackingData.data?.shipment_id || "N/A"}
+                    </p>
+                    <p className="text-sm font-semibold text-gray-700 mt-3">
+                      Current Status
+                    </p>
+                    {getStatusBadge(trackingData.data?.status)}
+                  </div>
 
-                {/* Tracking Timeline */}
-                <div>
-                  <h3 className="text-base font-bold text-gray-800 mb-4">
-                    Tracking History
-                  </h3>
-                  <div className="relative border-l-2 border-blue-200 pl-6">
-                    {dummyTrackingData.events.map((event, index) => (
-                      <div key={index} className="mb-6 relative">
-                        <div className="absolute -left-8 top-0 bg-blue-600 rounded-full w-4 h-4"></div>
-                        <p className="text-sm font-semibold text-gray-800">
-                          {event.status}
-                        </p>
-                        <p className="text-xs text-gray-600">{event.date}</p>
-                        <p className="text-xs text-gray-600">
-                          {event.location}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {event.details}
+                  {/* Status Message */}
+                  {trackingData.data?.message && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle
+                          size={20}
+                          className="text-blue-600 mt-0.5 flex-shrink-0"
+                        />
+                        <p className="text-sm text-blue-700">
+                          {trackingData.data.message}
                         </p>
                       </div>
-                    ))}
+                    </div>
+                  )}
+
+                  {/* Shipment Information */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-base font-bold text-gray-800 mb-3">
+                      Shipment Information
+                    </h3>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between">
+                        <span className="font-semibold">Order ID:</span>
+                        <span>
+                          {trackingData.shipment_info?.order_id || "N/A"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-semibold">Created At:</span>
+                        <span>
+                          {formatDate(trackingData.shipment_info?.created_at)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-semibold">
+                          Cashfree Order ID:
+                        </span>
+                        <span>
+                          {trackingData.shipment_info?.cashfree_order_id ||
+                            "N/A"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Additional Tracking Info */}
+                  {trackingData.data?.track_status !== undefined && (
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <h3 className="text-base font-bold text-gray-800 mb-3">
+                        Tracking Details
+                      </h3>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="font-semibold">Track Status:</span>
+                          <span>{trackingData.data.track_status}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="font-semibold">
+                            Shipment Status:
+                          </span>
+                          <span>{trackingData.data.shipment_status}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="font-semibold">Return Status:</span>
+                          <span>
+                            {trackingData.data.is_return ? "Yes" : "No"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* User Info */}
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <h3 className="text-base font-bold text-gray-800 mb-3">
+                      User Information
+                    </h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="font-semibold">User ID:</span>
+                        <span>{trackingData.user_id || "N/A"}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              ) : (
+                <div className="text-center p-6">
+                  <p className="text-gray-500">No tracking data available.</p>
+                </div>
+              )}
 
-                {/* Close Button */}
-                <Button
-                  onClick={() => setShowTrackingModal(false)}
-                  value="Close"
-                  color="secondary"
-                  className="w-full px-4 py-3 text-sm font-semibold rounded-xl border-2 hover:border-gray-400 transition-all"
-                />
-              </div>
+              {/* Close Button */}
+              <Button
+                onClick={() => setShowTrackingModal(false)}
+                value="Close"
+                color="secondary"
+                className="w-full px-4 py-3 text-sm font-semibold rounded-xl border-2 hover:border-gray-400 transition-all mt-6"
+              />
             </div>
           </div>
         </div>
