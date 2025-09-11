@@ -38,9 +38,10 @@ const Product = () => {
 
   useEffect(() => {
     const books = allBooks.find((item) => item._id === id);
+    console.log("this is the books details --> ", books);
     if (books) {
       setBooksDetails(books);
-      setGenre(booksData[0].genre);
+      setGenre(books.genre);
       setSwapImage(books);
       setMainImage(books);
     }

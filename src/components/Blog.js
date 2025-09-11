@@ -139,7 +139,7 @@ const Blog = () => {
             onMouseLeave={handleEnd}
           >
             <div
-              className="flex transition-transform duration-500 ease-out"
+              className="flex justify-center transition-transform duration-500 ease-out"
               style={{
                 transform: `translateX(-${
                   currentIndex * (100 / visibleItems)

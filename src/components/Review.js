@@ -16,7 +16,7 @@ const Review = () => {
         );
         setSlideAnimation("slide-in"); // Reset to slide-in animation
       }, 500); // Match this timeout with the animation duration
-    }, 3000);
+    }, 8000);
 
     return () => clearInterval(interval); // Cleanup interval on component unmount
   }, []);

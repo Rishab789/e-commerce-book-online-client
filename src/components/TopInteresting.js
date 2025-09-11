@@ -124,7 +124,7 @@ const TopInteresting = () => {
               {/* Original Books */}
               {allBooks.map(({ image, title, _id, price }) => (
                 <div key={_id} className="shrink-0 main relative">
-                  <button
+                  {/* <button
                     onClick={() => toggleFavorite(_id)}
                     className="absolute right-9 top-1 bg-slate-100 rounded-full"
                   >
@@ -133,7 +133,7 @@ const TopInteresting = () => {
                     ) : (
                       <IoMdHeartEmpty className="text-2xl text-black" />
                     )}
-                  </button>
+                  </button> */}
                   <div className="spread absolute"></div>
                   <Link to={`/productDetails/${_id}`}>
                     <img src={image} alt={title} width={200} />
