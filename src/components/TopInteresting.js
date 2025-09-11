@@ -124,7 +124,7 @@ const TopInteresting = () => {
               {/* Original Books */}
               {allBooks.map(({ image, title, _id, price }) => (
                 <div key={_id} className="shrink-0 main relative">
-                  <button
+                  {/* <button
                     onClick={() => toggleFavorite(_id)}
                     className="absolute right-9 top-1 bg-slate-100 rounded-full"
                   >
@@ -133,14 +133,14 @@ const TopInteresting = () => {
                     ) : (
                       <IoMdHeartEmpty className="text-2xl text-black" />
                     )}
-                  </button>
+                  </button> */}
                   <div className="spread absolute"></div>
                   <Link to={`/productDetails/${_id}`}>
                     <img src={image} alt={title} width={200} />
                   </Link>
-                  <div className="absolute bottom-12 right-12 flex">
+                  {/* <div className="absolute bottom-12 right-12 flex">
                     <Button value="Buy Now" color="sign-color" />
-                  </div>
+                  </div> */}
                   <p className="text-center rufina1">{title.slice(0, 20)}</p>
                   <p className="text-center rufina1">${price}</p>
                 </div>
@@ -153,9 +153,9 @@ const TopInteresting = () => {
                   <Link to={`/productDetails/${_id}`}>
                     <img src={image} alt={title} width={200} />
                   </Link>
-                  <div className="absolute bottom-12 right-12 flex">
+                  {/* <div className="absolute bottom-12 right-12 flex">
                     <Button value="Buy Now" color="sign-color" />
-                  </div>
+                  </div> */}
                   <p className="text-center rufina1">{title.slice(0, 20)}</p>
                   <p className="text-center rufina1">${price}</p>
                 </div>

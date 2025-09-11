@@ -44,6 +44,7 @@ const MyAccount = () => {
           className={`absolute top-1/4 left-16 md:left-1/3 lg:left-1/3 z-20 ${
             isLogOut ? "block" : "hidden"
           } `}
+          setIsLogOut={setIsLogOut}
         />
       </div>
       <div className=" px-1 md:px-12 lg:px-14">

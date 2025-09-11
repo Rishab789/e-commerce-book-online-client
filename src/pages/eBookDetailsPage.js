@@ -86,6 +86,7 @@ export const EBooksDetailsPageComponent = () => {
         image: ebooksDetails.imageFile,
         price: ebooksDetails.price,
         quantity: counter,
+        type: ebooksDetails.type,
       };
 
       const res = await axios.post(`${API_BASE}/cart`, payload, {

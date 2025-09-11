@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useContext } from "react";
-import Button from "../../src/components/Button";
-import { LogInContext } from "./../contexts/LogInContext"; // Import the context
+import axios from "axios";
+import Button from "../components/Button";
+import { LogInContext } from "./../contexts/LogInContext"; // Adjust the import path as needed
 
-const OrderAccount = () => {
+const API_BASE = `${process.env.REACT_APP_URL}/api/v1`;
+
+const AccountDetails = () => {
   const { userId } = useContext(LogInContext);
-  const [orders, setOrders] = useState([]);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchUserOrders = async () => {
+    const fetchUserData = async () => {
+      // Check if userId is available
       if (!userId) {
+        setError("User ID not found. Please log in again.");
         setLoading(false);
         return;
       }
@@ -18,64 +23,30 @@ const OrderAccount = () => {
       try {
         setLoading(true);
         setError(null);
+        const response = await axios.get(`${API_BASE}/getUser/${userId}`);
 
-        const response = await fetch(
-          `${process.env.REACT_APP_URL}/api/v1/getUserOrders?userId=${userId}`
-        );
-
-        const data = await response.json();
-
-        if (data.success) {
-          setOrders(data.data.orders);
+        if (response.data.success) {
+          setUserData(response.data.user);
         } else {
-          setError("Failed to fetch orders");
+          setError("Failed to fetch user data");
         }
       } catch (err) {
-        setError("Error fetching orders. Please try again.");
-        console.error("Error fetching orders:", err);
+        console.error("Error fetching user data:", err);
+        setError(err.response?.data?.message || "Error fetching user data");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserOrders();
-  }, [userId]);
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
-  const formatPrice = (price) => {
-    return `₹${price?.toLocaleString("en-IN")}/-` || "₹0/-";
-  };
-
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case "processing":
-      case "confirmed":
-        return "bg-orange-400";
-      case "shipped":
-        return "bg-blue-400";
-      case "delivered":
-        return "bg-green-400";
-      case "cancelled":
-        return "bg-red-400";
-      default:
-        return "bg-gray-400";
-    }
-  };
+    fetchUserData();
+  }, [userId]); // Dependency on userId
 
   if (loading) {
     return (
-      <div className="overflow-auto">
-        <p className="text-2xl border-b-2 mb-5">Orders</p>
-        <div className="flex justify-center items-center h-40">
-          <p>Loading orders...</p>
+      <div>
+        <p className="text-2xl border-b-2 mb-5">Account Details</p>
+        <div className="mb-5">
+          <p>Loading user information...</p>
         </div>
       </div>
     );
@@ -83,111 +54,65 @@ const OrderAccount = () => {
 
   if (error) {
     return (
-      <div className="overflow-auto">
-        <p className="text-2xl border-b-2 mb-5">Orders</p>
-        <div className="flex justify-center items-center h-40">
-          <p className="text-red-500">{error}</p>
+      <div>
+        <p className="text-2xl border-b-2 mb-5">Account Details</p>
+        <div className="mb-5">
+          <p className="text-red-500">Error: {error}</p>
+          <Button
+            text="Retry"
+            onClick={() => window.location.reload()}
+            className="mt-3"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <div>
+        <p className="text-2xl border-b-2 mb-5">Account Details</p>
+        <div className="mb-5">
+          <p>No user data found</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="overflow-auto">
-      <p className="text-2xl border-b-2 mb-5">Orders</p>
+    <div>
+      <p className="text-2xl border-b-2 mb-5">Account Details</p>
+      <div className="mb-5">
+        <p className="text-lg font-semibold">
+          Name: {userData.fullName || userData.name || "N/A"}
+        </p>
+        <p className="text-sm lg:text-xl text-gray-600">
+          Email: {userData.email || "N/A"}
+        </p>
+      </div>
 
-      {orders.length === 0 ? (
-        <div className="flex justify-center items-center h-40">
-          <p>No orders found</p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-center border-collapse">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-3 border">Order ID</th>
-                <th className="p-3 border">Products</th>
-                <th className="p-3 border">Date</th>
-                <th className="p-3 border">Status</th>
-                <th className="p-3 border">Total</th>
-                <th className="p-3 border">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order, index) => (
-                <tr key={order.order_id || index} className="hover:bg-gray-50">
-                  <td className="p-3 border">
-                    #{order.order_id || order.id || "N/A"}
-                  </td>
-                  <td className="p-3 border">
-                    {order.order_items?.map((item) => item.name).join(", ") ||
-                      "Unknown Product"}
-                  </td>
-                  <td className="p-3 border">
-                    {formatDate(order.order_date || order.created_at)}
-                  </td>
-                  <td className="p-3 border">
-                    <p
-                      className={`rounded-md text-white px-2 py-1 text-sm ${getStatusColor(
-                        order.status
-                      )}`}
-                    >
-                      {order.status || "Unknown"}
-                    </p>
-                  </td>
-                  <td className="p-3 border">
-                    {formatPrice(order.order_amount || order.total)}
-                  </td>
-                  <td className="p-3 border">
-                    {order.status !== "cancelled" &&
-                      order.status !== "delivered" && (
-                        <Button
-                          value="Cancel"
-                          color="sign-color"
-                          className="text-sm px-3 py-1"
-                          onClick={() => handleCancelOrder(order.order_id)}
-                        />
-                      )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* Additional user information if available */}
+      {userData.phone && (
+        <p className="text-sm lg:text-xl text-gray-600">
+          Phone: {userData.phone}
+        </p>
       )}
+
+      {userData.address && (
+        <p className="text-sm lg:text-xl text-gray-600">
+          Address: {userData.address}
+        </p>
+      )}
+
+      <div className="mt-6">
+        <Button
+          text="Edit Profile"
+          onClick={() => console.log("Edit profile clicked")}
+          className="bg-blue-500 hover:bg-blue-600 text-white"
+        />
+      </div>
     </div>
   );
 };
 
-// Optional: Add cancel order function
-const handleCancelOrder = async (orderId) => {
-  if (window.confirm("Are you sure you want to cancel this order?")) {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_URL}/api/v1/cancelOrder`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ orderId }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        alert("Order cancelled successfully");
-        // Refresh orders
-        window.location.reload();
-      } else {
-        alert("Failed to cancel order");
-      }
-    } catch (error) {
-      console.error("Error cancelling order:", error);
-      alert("Error cancelling order");
-    }
-  }
-};
-
-export default OrderAccount;
+export default AccountDetails;
