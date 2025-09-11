@@ -37,6 +37,7 @@ export const CartContextProvider = ({ children }) => {
       }
 
       const data = await response.json();
+      console.log("this is the cart data ", data);
 
       if (data.success) {
         setProducts(data.cart?.items || []);

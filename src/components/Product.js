@@ -4,7 +4,7 @@ import Counter from "./Counter";
 import Button from "./Button";
 import { IoMdHeart } from "react-icons/io";
 import { booksData } from "../services/booksData";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ProductContext } from "../contexts/ProductsContext";
 import AddReview from "./AddReview";
 import { useDispatch } from "react-redux";
@@ -75,6 +75,7 @@ const Product = () => {
         image: booksDetails.image,
         price: booksDetails.price,
         quantity: counter,
+        type: booksDetails.type,
       };
 
       const res = await axios.post(`${API_BASE}/cart`, payload, {
@@ -215,15 +216,21 @@ const Product = () => {
       {/* Related Products */}
       <div className="lg:w-1/4">
         <p className="text-lg font-extrabold">RELATED PRODUCTS</p>
-        <div className="overflow-y-auto h-1/4">
-          {booksData
+        <div className="overflow-y-auto h-1/4 ">
+          {allBooks
             .filter((item) => item.genre === bookGenre)
             .map((item, index) => (
               <div
-                className="flex flex-col md:flex-row lg:flex-row items-center cursor-pointer"
+                className="flex my-2  flex-col md:flex-row lg:flex-row  items-center cursor-pointer"
                 key={index}
               >
-                <img src={item.image} className="w-32 md:w-20 lg:w-20" alt="" />
+                <Link to={`/productDetails/${item._id}`}>
+                  <img
+                    src={item.image}
+                    className="w-32 md:w-20 lg:w-20"
+                    alt=""
+                  />
+                </Link>
                 <div>
                   <Stars stars={item.rating} />
                   <p>{item.title}</p>

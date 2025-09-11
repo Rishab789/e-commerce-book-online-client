@@ -138,9 +138,9 @@ const TopInteresting = () => {
                   <Link to={`/productDetails/${_id}`}>
                     <img src={image} alt={title} width={200} />
                   </Link>
-                  <div className="absolute bottom-12 right-12 flex">
+                  {/* <div className="absolute bottom-12 right-12 flex">
                     <Button value="Buy Now" color="sign-color" />
-                  </div>
+                  </div> */}
                   <p className="text-center rufina1">{title.slice(0, 20)}</p>
                   <p className="text-center rufina1">${price}</p>
                 </div>
@@ -153,9 +153,9 @@ const TopInteresting = () => {
                   <Link to={`/productDetails/${_id}`}>
                     <img src={image} alt={title} width={200} />
                   </Link>
-                  <div className="absolute bottom-12 right-12 flex">
+                  {/* <div className="absolute bottom-12 right-12 flex">
                     <Button value="Buy Now" color="sign-color" />
-                  </div>
+                  </div> */}
                   <p className="text-center rufina1">{title.slice(0, 20)}</p>
                   <p className="text-center rufina1">${price}</p>
                 </div>
