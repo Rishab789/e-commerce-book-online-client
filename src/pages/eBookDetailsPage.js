@@ -212,7 +212,7 @@ export const EBooksDetailsPageComponent = () => {
                 </button>
               </div>
               <Button
-                value="Add to Cart"
+                value={isLoading ? "Adding..." : "Add to Cart"}
                 color="sign-color"
                 onClick={handleAddToCart}
               />
