@@ -75,6 +75,7 @@ const Product = () => {
 
   // ✅ Add to cart API call
   const handleAddToCart = async () => {
+    console.log("add to cart");
     if (!userId) {
       toast.error("Please log in first!");
       return;
@@ -92,6 +93,8 @@ const Product = () => {
         quantity: counter,
         type: "book",
       };
+
+      console.log("this is the payload ", payload);
 
       const res = await axios.post(`${API_BASE}/cart`, payload, {
         withCredentials: true,
