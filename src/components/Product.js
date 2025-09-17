@@ -135,7 +135,7 @@ const Product = () => {
               <img
                 src={toggle ? mainImage : booksDetails.image2}
                 width={100}
-                alt="swap"
+                alt="swap "
               />
             </div>
           </div>
