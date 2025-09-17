@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import Stars from "./Stars";
 import Counter from "./Counter";
 import Button from "./Button";
@@ -21,6 +21,7 @@ const Product = () => {
   const { id } = useParams();
   const { allBooks } = useContext(ProductContext);
   const { setProducts, products, fetchCart } = useContext(CartContext);
+  const productRef = useRef(null);
 
   const [booksDetails, setBooksDetails] = useState(null);
   const [bookGenre, setGenre] = useState("");
@@ -45,7 +46,20 @@ const Product = () => {
       setSwapImage(books);
       setMainImage(books);
     }
+
+    // Scroll to top on initial load for mobile
+    if (window.innerWidth <= 768) {
+      window.scrollTo(0, 0);
+    }
   }, [id, allBooks]);
+
+  // Function to handle related product click
+  const handleRelatedProductClick = () => {
+    // Scroll to top for mobile devices
+    if (window.innerWidth <= 768) {
+      window.scrollTo(0, 0);
+    }
+  };
 
   if (!booksDetails) {
     return null;
@@ -76,7 +90,7 @@ const Product = () => {
         image: booksDetails.image,
         price: booksDetails.price,
         quantity: counter,
-        type: booksDetails.type,
+        type: "book",
       };
 
       const res = await axios.post(`${API_BASE}/cart`, payload, {
@@ -99,7 +113,7 @@ const Product = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row pt-20 px-10">
+    <div className="flex flex-col lg:flex-row pt-20 px-10" ref={productRef}>
       <div>
         <Toaster position="top-center" reverseOrder={false} />
       </div>
@@ -224,6 +238,7 @@ const Product = () => {
               <div
                 className="flex my-2  flex-col md:flex-row lg:flex-row  items-center cursor-pointer"
                 key={index}
+                onClick={handleRelatedProductClick}
               >
                 <Link to={`/productDetails/${item._id}`}>
                   <img

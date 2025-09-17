@@ -134,8 +134,8 @@ const TopInteresting = () => {
                       <IoMdHeartEmpty className="text-2xl text-black" />
                     )}
                   </button> */}
-                  <div className="spread absolute"></div>
                   <Link to={`/productDetails/${_id}`}>
+                    <div className="spread absolute"></div>
                     <img src={image} alt={title} width={200} />
                   </Link>
                   {/* <div className="absolute bottom-12 right-12 flex">
@@ -164,22 +164,24 @@ const TopInteresting = () => {
           </div>
 
           {/* Navigation Arrows */}
-          <div
-            className={`absolute top-[55%] md:top-[55%] lg:top-[45%] left-0 right-0 flex justify-between items-center px-10 transition-opacity duration-500 ${
-              isDivHover ? "opacity-100" : "opacity-0"
-            }`}
-          >
+          <div className="hidden md:block lg:block">
             <div
-              className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
-              onClick={leftHandler}
+              className={`  absolute    md:top-[70%] lg:top-[70%] left-0 right-0 flex justify-between items-center px-10 transition-opacity duration-500 ${
+                isDivHover ? "opacity-100" : "opacity-0"
+              }`}
             >
-              <FaChevronLeft style={{ fontSize: 40 }} />
-            </div>
-            <div
-              className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
-              onClick={rightHandler}
-            >
-              <FaChevronRight style={{ fontSize: 40 }} />
+              <div
+                className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
+                onClick={leftHandler}
+              >
+                <FaChevronLeft style={{ fontSize: 40 }} />
+              </div>
+              <div
+                className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
+                onClick={rightHandler}
+              >
+                <FaChevronRight style={{ fontSize: 40 }} />
+              </div>
             </div>
           </div>
         </div>

@@ -1,13 +1,15 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LogInContext } from "./../contexts/LogInContext";
-import { jwtDecode } from "jwt-decode"; // Install jwt-decode library to parse JWT tokens
+import { CartContext } from "../contexts/cart.context";
+import { jwtDecode } from "jwt-decode";
 import toast, { Toaster } from "react-hot-toast";
 import user from "./../assets/dashboardAssets/user.png";
 import axios from "axios";
 
 const TopBar = ({ onLogoutClick }) => {
-  const { auth, logout, userId } = useContext(LogInContext); // Use context
+  const { auth, logout, userId } = useContext(LogInContext);
+  const { products } = useContext(CartContext);
   const navigate = useNavigate();
   const [roles, setRole] = useState(null);
   const [users, setUsers] = useState(null);
@@ -15,13 +17,12 @@ const TopBar = ({ onLogoutClick }) => {
   const API_BASE = `${process.env.REACT_APP_URL}/api/v1`;
 
   useEffect(() => {
-    if (!userId) return; // wait until userId is set
+    if (!userId) return;
     const fetchUser = async () => {
       try {
-        const res = await axios.get(
-          `${API_BASE}/getUser/${userId}`,
-          { withCredentials: true } // include cookies if using auth
-        );
+        const res = await axios.get(`${API_BASE}/getUser/${userId}`, {
+          withCredentials: true,
+        });
         setUsers(res.data.user);
       } catch (err) {
         console.error("❌ Error fetching user:", err);
@@ -46,7 +47,7 @@ const TopBar = ({ onLogoutClick }) => {
   const handleDashboardClick = () => {
     if (auth.token) {
       try {
-        const decodedToken = jwtDecode(auth.token); // Decode JWT token
+        const decodedToken = jwtDecode(auth.token);
 
         if (decodedToken.role === "Admin") {
           navigate("/dashboard");
@@ -59,6 +60,24 @@ const TopBar = ({ onLogoutClick }) => {
     } else {
       toast.error("You are not logged in.");
     }
+  };
+
+  const handleCheckoutClick = (e) => {
+    if (!auth?.token) {
+      e.preventDefault();
+      toast.error("Please log in first!");
+      return;
+    }
+
+    // Check if cart is empty
+    if (!products || products.length === 0) {
+      e.preventDefault();
+      toast.error("Please add some products to your cart before checkout!");
+      return;
+    }
+
+    // If cart has items, proceed to checkout
+    navigate("/checkout");
   };
 
   return (
@@ -76,28 +95,25 @@ const TopBar = ({ onLogoutClick }) => {
           Dashboard
         </span>
         {roles == "Admin" && <div className="separator"></div>}
-        {/* <a href="/myaccount" className="hover:text-secondary-color text-sm">
-          My Account
-        </a> */}
-        {/* <div className="separator"></div> */}
-        <a
-          href="/checkout"
-          className={`hover:text-secondary-color text-sm ${
+
+        {/* Checkout Link with Validation */}
+        <span
+          onClick={handleCheckoutClick}
+          className={`hover:text-secondary-color text-sm cursor-pointer ${
             auth?.token ? "block" : "hidden"
           }`}
         >
           Checkout
-        </a>
+        </span>
+
         <div className={`separator  ${auth?.token ? "block" : "hidden"}`}></div>
-        {/* <Link to="/signin" className="hover:text-secondary-color text-sm"> */}
+
         {auth.isLoggedIn ? (
           <span
             onClick={() => {
               console.log("button clicked");
               onLogoutClick();
-
-              // setRole(null);
-            }} // Call logout on click
+            }}
             className="hover:text-secondary-color text-sm cursor-pointer"
           >
             Log out
@@ -107,6 +123,7 @@ const TopBar = ({ onLogoutClick }) => {
             Log in
           </Link>
         )}
+
         <div className={`separator ${auth?.token ? "block" : "hidden"}`}></div>
 
         <a
