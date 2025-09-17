@@ -216,10 +216,10 @@ export const EBooksDetailsPageComponent = () => {
                 color="sign-color"
                 onClick={handleAddToCart}
               />
-              <p className="flex items-center ">
+              {/* <p className="flex items-center ">
                 Add to Wishlist{" "}
                 <IoMdHeart className="cursor-pointer text-2xl" />
-              </p>
+              </p> */}
             </div>
             <div>
               <p>{ebooksDetails.details}</p>
