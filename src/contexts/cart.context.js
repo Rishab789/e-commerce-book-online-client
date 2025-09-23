@@ -53,6 +53,24 @@ export const CartContextProvider = ({ children }) => {
     }
   };
 
+  const clearCart = async () => {
+    try {
+      setProducts([]);
+
+      // If you want to clear cart on server side as well
+      if (userId && API_BASE_URL) {
+        await fetch(`${API_BASE_URL}/api/v1/clear/${userId}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      console.log("Cart cleared successfully");
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+    }
+  };
+
   useEffect(() => {
     if (userId) {
       fetchCart();
@@ -69,6 +87,7 @@ export const CartContextProvider = ({ children }) => {
         error,
         fetchCart,
         setProducts,
+        clearCart,
       }}
     >
       {children}
