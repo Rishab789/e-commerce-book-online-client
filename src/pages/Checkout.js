@@ -147,10 +147,11 @@ const Checkout = () => {
 
     // Prepare order data
     const products = cartItems.map((item) => ({
-      productId: item._id,
+      productId: item.productId,
       name: item.title,
       quantity: item.quantity,
       price: Number(item.price),
+      type: item.type,
     }));
 
     const customer = {
