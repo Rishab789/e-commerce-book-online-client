@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { load } from "@cashfreepayments/cashfree-js";
+import { CartContext } from "./../contexts/cart.context"; // Adjust path as needed
 
 const PaymentSuccess = () => {
   const [paymentStatus, setPaymentStatus] = useState("verifying");
   const [error, setError] = useState("");
+  const { setProducts } = useContext(CartContext); // Get setProducts from CartContext
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -14,7 +16,24 @@ const PaymentSuccess = () => {
   const searchParams = new URLSearchParams(location.search);
   const order_id = searchParams.get("order_id");
   const { orderId, paymentSessionId, bookingData } = location.state || {};
-  console.log();
+
+  // Function to clear the cart
+  const clearCart = async () => {
+    try {
+      // Clear the cart in the context state
+      setProducts([]);
+
+      // If you have an API endpoint to clear cart on server side, call it here
+      // Example:
+      // await axios.delete(`${url}/api/v1/cart/clear`, {
+      //   headers: { Authorization: `Bearer ${token}` }
+      // });
+
+      console.log("Cart cleared successfully");
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+    }
+  };
 
   // Initialize payment if session info is present
   useEffect(() => {
@@ -47,6 +66,8 @@ const PaymentSuccess = () => {
 
         if (res.data.success) {
           setPaymentStatus("success");
+          // Clear cart when payment is successful
+          await clearCart();
         } else {
           setPaymentStatus("failed");
         }
