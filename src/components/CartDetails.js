@@ -5,6 +5,7 @@ import Counter from "./Counter";
 import { Link, useNavigate } from "react-router-dom";
 import { LogInContext } from "../contexts/LogInContext";
 import { CartContext } from "../contexts/cart.context";
+import axios from "axios";
 
 const CartDetails = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const CartDetails = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [shippingLoading, setShippingLoading] = useState(false);
+  const [deliveryPincode, setDeliveryPincode] = useState("");
 
   const API_BASE_URL = process.env.REACT_APP_URL;
   const PICKUP_POSTCODE = process.env.REACT_APP_PICKUP_POSTCODE;
@@ -39,8 +41,54 @@ const CartDetails = () => {
     }
   }, [products]);
 
-  const fetchShippingCharges = async (deliveryPostcode = "769015") => {
-    if (!deliveryPostcode) {
+  useEffect(() => {
+    if (userId) {
+      fetchAddresses(userId);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (products.length > 0 && deliveryPincode) {
+      fetchShippingCharges(deliveryPincode);
+    } else if (products.length > 0) {
+      // If no delivery pincode, set default shipping charge
+      setShippingCharge(20);
+    }
+  }, [products, deliveryPincode]);
+  ///////    Fetch Address  Function  /////////
+  const fetchAddresses = async (userId) => {
+    try {
+      console.log("Fetching addresses for user:", userId);
+      const res = await axios.get(
+        `${API_BASE_URL}/api/v1/getAddresses/${userId}`
+      );
+      const addresses = res.data?.addresses || [];
+      console.log("Fetched addresses:", addresses);
+
+      const defaultAddress = addresses.find((addr) => addr.isDefault);
+
+      if (
+        defaultAddress &&
+        defaultAddress.address &&
+        defaultAddress.address.pincode
+      ) {
+        const pincode = defaultAddress.address.pincode;
+        setDeliveryPincode(pincode);
+        console.log("Set default delivery pincode:", pincode);
+      } else {
+        setDeliveryPincode("");
+        console.log("No default address found or pincode missing");
+      }
+    } catch (err) {
+      console.error("Error fetching addresses:", err);
+      setDeliveryPincode("");
+    }
+  };
+
+  ////////////////////////////////////////////
+
+  const fetchShippingCharges = async (pincode) => {
+    if (!pincode) {
       setShippingCharge(20);
       return;
     }
@@ -57,7 +105,7 @@ const CartDetails = () => {
           },
           body: JSON.stringify({
             pickup_postcode: PICKUP_POSTCODE,
-            delivery_postcode: deliveryPostcode,
+            delivery_postcode: pincode,
             cod: 0,
           }),
         }
