@@ -97,7 +97,7 @@ const TopBar = ({ onLogoutClick }) => {
         {roles == "Admin" && <div className="separator"></div>}
 
         {/* Checkout Link with Validation */}
-        <span
+        {/* <span
           onClick={handleCheckoutClick}
           className={`hover:text-secondary-color text-sm cursor-pointer ${
             auth?.token ? "block" : "hidden"
@@ -106,7 +106,7 @@ const TopBar = ({ onLogoutClick }) => {
           Checkout
         </span>
 
-        <div className={`separator  ${auth?.token ? "block" : "hidden"}`}></div>
+        <div className={`separator  ${auth?.token ? "block" : "hidden"}`}></div> */}
 
         {auth.isLoggedIn ? (
           <span
