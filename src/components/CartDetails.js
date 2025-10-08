@@ -255,6 +255,7 @@ const CartDetails = () => {
           Processing...
         </p>
       )}
+      {/*  */}
 
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-200 shadow-md rounded-lg bg-white">
