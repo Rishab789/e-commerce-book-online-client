@@ -158,22 +158,24 @@ const Slider = () => {
 
           {/* Navigation Arrows - Only show if there are enough products */}
           {books.length > 1 && (
-            <div
-              className={`absolute top-[45%] left-0 right-0 flex justify-between items-center transition-opacity duration-500 ${
-                isDivHover ? "opacity-100" : "opacity-0"
-              }`}
-            >
+            <div className="hidden md:block lg:block">
               <div
-                className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500 ml-4"
-                onClick={leftHandler}
+                className={` absolute top-[45%] left-0 right-0 flex justify-between items-center transition-opacity duration-500 ${
+                  isDivHover ? "opacity-100" : "opacity-0"
+                }`}
               >
-                <FaChevronLeft style={{ fontSize: 40 }} />
-              </div>
-              <div
-                className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500 mr-4"
-                onClick={rightHandler}
-              >
-                <FaChevronRight style={{ fontSize: 40 }} />
+                <div
+                  className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500 ml-4"
+                  onClick={leftHandler}
+                >
+                  <FaChevronLeft style={{ fontSize: 40 }} />
+                </div>
+                <div
+                  className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500 mr-4"
+                  onClick={rightHandler}
+                >
+                  <FaChevronRight style={{ fontSize: 40 }} />
+                </div>
               </div>
             </div>
           )}
