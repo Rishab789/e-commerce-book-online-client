@@ -134,22 +134,24 @@ const FeaturedBooks = () => {
         </div>
 
         {/* Navigation arrows */}
-        <div
-          className={`absolute top-[45%] left-0 right-0 flex justify-between items-center px-10 transition-opacity duration-500 ${
-            isDivHover ? "opacity-100" : "opacity-0"
-          }`}
-        >
+        <div className="hidden md:block lg:block">
           <div
-            className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
-            onClick={() => rotateWithAnimation("left")}
+            className={`  absolute top-[45%] left-0 right-0 flex justify-between items-center px-10 transition-opacity duration-500 ${
+              isDivHover ? "opacity-100" : "opacity-0"
+            }`}
           >
-            <FaChevronLeft style={{ fontSize: 40 }} />
-          </div>
-          <div
-            className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
-            onClick={() => rotateWithAnimation("right")}
-          >
-            <FaChevronRight style={{ fontSize: 40 }} />
+            <div
+              className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
+              onClick={() => rotateWithAnimation("left")}
+            >
+              <FaChevronLeft style={{ fontSize: 40 }} />
+            </div>
+            <div
+              className="bg-primary-color p-3 rounded-md cursor-pointer hover:bg-[#f07c29] hover:text-white duration-500"
+              onClick={() => rotateWithAnimation("right")}
+            >
+              <FaChevronRight style={{ fontSize: 40 }} />
+            </div>
           </div>
         </div>
       </section>
