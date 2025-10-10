@@ -39,7 +39,7 @@ const PaymentSuccess = () => {
   useEffect(() => {
     const initializePayment = async () => {
       try {
-        const cashfree = await load({ mode: "sandbox" });
+        const cashfree = await load({ mode: "production" });
         await cashfree.checkout({
           paymentSessionId,
           redirectTarget: "_self",

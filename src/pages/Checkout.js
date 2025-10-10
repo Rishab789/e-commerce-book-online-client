@@ -36,7 +36,7 @@ const Checkout = () => {
   // ✅ Load Cashfree
   useEffect(() => {
     (async () => {
-      cashfreeRef.current = await load({ mode: "sandbox" });
+      cashfreeRef.current = await load({ mode: "production" });
     })();
   }, []);
 
