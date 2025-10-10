@@ -31,6 +31,7 @@ const Checkout = () => {
   const location = useLocation();
   const cartItems = location.state?.cartItems || [];
   const totalPrice = location.state?.totalPrice || 0;
+  const shippingCharge = location.state?.shippingCharge || 0;
 
   // ✅ Load Cashfree
   useEffect(() => {
@@ -472,11 +473,11 @@ const Checkout = () => {
                 ))}
                 <tr>
                   <td>Shipping</td>
-                  <td>₹{formData.shippingCost}</td>
+                  <td>₹{Math.round(shippingCharge)}</td>
                 </tr>
                 <tr>
                   <td>ORDER TOTAL</td>
-                  <td>₹{Number(totalPrice) + Number(formData.shippingCost)}</td>
+                  <td>₹{Number(totalPrice) + Math.round(shippingCharge)}</td>
                 </tr>
               </tbody>
             </table>
