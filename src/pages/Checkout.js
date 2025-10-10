@@ -473,7 +473,7 @@ const Checkout = () => {
                 ))}
                 <tr>
                   <td>Shipping</td>
-                  <td>₹{Math.round(shippingCharge)}</td>
+                  <td>₹{0}</td>
                 </tr>
                 <tr>
                   <td>ORDER TOTAL</td>
