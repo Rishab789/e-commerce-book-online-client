@@ -626,160 +626,233 @@ const OrderAccount = () => {
         </div>
       </div>
 
-      {/* Tracking Modal */}
+      {/* Tracking Modal - Positioned at Top Middle */}
       {showTrackingModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                  <Truck size={24} />
-                  Track Order #
-                  {selectedOrder.channel_order_id || selectedOrder.id}
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 pt-8 sm:pt-12 md:pt-16">
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-2xl max-h-[85vh] overflow-y-auto transform transition-all duration-300 ease-out">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 rounded-t-2xl p-6 z-10">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-3">
+                  <div className="bg-blue-100 p-2 rounded-lg">
+                    <Truck size={24} className="text-blue-600" />
+                  </div>
+                  <div>
+                    <span className="block text-sm text-gray-600 font-normal">
+                      Tracking Order
+                    </span>
+                    <span className="block">
+                      #{selectedOrder.channel_order_id || selectedOrder.id}
+                    </span>
+                  </div>
                 </h2>
                 <button
                   onClick={() => setShowTrackingModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-colors duration-200"
                 >
                   <XCircle size={24} />
                 </button>
               </div>
+            </div>
 
+            {/* Modal Content */}
+            <div className="p-6">
               {trackingLoading ? (
-                <div className="flex justify-center items-center h-40">
-                  <Loader size={32} className="animate-spin text-blue-600" />
-                  <span className="ml-3 text-gray-600">
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader
+                    size={48}
+                    className="animate-spin text-blue-600 mb-4"
+                  />
+                  <p className="text-gray-600 text-lg font-medium">
                     Loading tracking details...
-                  </span>
+                  </p>
+                  <p className="text-gray-500 text-sm mt-2">
+                    Please wait while we fetch your order status
+                  </p>
                 </div>
               ) : trackingError ? (
-                <div className="text-center p-6">
-                  <AlertCircle
-                    size={48}
-                    className="text-red-500 mx-auto mb-4"
-                  />
-                  <p className="text-red-600 mb-4">{trackingError}</p>
+                <div className="text-center py-8">
+                  <div className="bg-red-50 p-4 rounded-xl mb-6">
+                    <AlertCircle
+                      size={48}
+                      className="text-red-500 mx-auto mb-3"
+                    />
+                    <p className="text-red-600 font-medium text-lg mb-2">
+                      Unable to load tracking details
+                    </p>
+                    <p className="text-red-500">{trackingError}</p>
+                  </div>
                   <Button
                     onClick={fetchTrackingDetails}
-                    value="Retry"
+                    value="Try Again"
                     color="primary"
-                    className="px-4 py-2"
+                    className="px-6 py-3"
                   />
                 </div>
               ) : trackingData ? (
                 <div className="space-y-6">
-                  {/* Tracking ID and Status */}
-                  <div>
-                    <p className="text-sm font-semibold text-gray-700">
-                      Tracking ID
-                    </p>
-                    <p className="text-sm text-gray-600 font-mono">
-                      {trackingData.data?.shipment_id || "N/A"}
-                    </p>
-                    <p className="text-sm font-semibold text-gray-700 mt-3">
-                      Current Status
-                    </p>
-                    {getStatusBadge(trackingData.data?.status)}
+                  {/* Current Status Card */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm font-semibold text-blue-700 mb-1">
+                          Current Status
+                        </p>
+                        <div className="mb-3">
+                          {getStatusBadge(trackingData.data?.status)}
+                        </div>
+                        <p className="text-sm font-semibold text-blue-700 mb-1">
+                          Tracking ID
+                        </p>
+                        <p className="text-sm text-blue-800 font-mono bg-blue-100 px-3 py-1 rounded-lg inline-block">
+                          {trackingData.data?.shipment_id || "N/A"}
+                        </p>
+                      </div>
+                      <div className="bg-white p-3 rounded-lg shadow-sm">
+                        <Package size={32} className="text-blue-600" />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Status Message */}
                   {trackingData.data?.message && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                       <div className="flex items-start gap-3">
                         <AlertCircle
                           size={20}
-                          className="text-blue-600 mt-0.5 flex-shrink-0"
+                          className="text-amber-600 mt-0.5 flex-shrink-0"
                         />
-                        <p className="text-sm text-blue-700">
-                          {trackingData.data.message}
-                        </p>
+                        <div>
+                          <p className="text-sm font-semibold text-amber-800 mb-1">
+                            Status Update
+                          </p>
+                          <p className="text-sm text-amber-700">
+                            {trackingData.data.message}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}
 
                   {/* Shipment Information */}
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="text-base font-bold text-gray-800 mb-3">
+                  <div className="bg-gray-50 border border-gray-200 rounded-xl p-5">
+                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                      <MapPin size={20} className="text-gray-600" />
                       Shipment Information
                     </h3>
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between">
-                        <span className="font-semibold">Order ID:</span>
-                        <span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="font-semibold text-gray-700">
+                          Order ID:
+                        </span>
+                        <p className="text-gray-600 mt-1">
                           {trackingData.shipment_info?.order_id || "N/A"}
-                        </span>
+                        </p>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="font-semibold">Created At:</span>
-                        <span>
+                      <div>
+                        <span className="font-semibold text-gray-700">
+                          Created At:
+                        </span>
+                        <p className="text-gray-600 mt-1">
                           {formatDate(trackingData.shipment_info?.created_at)}
-                        </span>
+                        </p>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="font-semibold">
+                      <div>
+                        <span className="font-semibold text-gray-700">
                           Cashfree Order ID:
                         </span>
-                        <span>
+                        <p className="text-gray-600 mt-1 break-all">
                           {trackingData.shipment_info?.cashfree_order_id ||
                             "N/A"}
-                        </span>
+                        </p>
                       </div>
                     </div>
                   </div>
 
                   {/* Additional Tracking Info */}
                   {trackingData.data?.track_status !== undefined && (
-                    <div className="bg-green-50 p-4 rounded-lg">
-                      <h3 className="text-base font-bold text-gray-800 mb-3">
+                    <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+                      <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <Truck size={20} className="text-green-600" />
                         Tracking Details
                       </h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="font-semibold">Track Status:</span>
-                          <span>{trackingData.data.track_status}</span>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="font-semibold text-gray-700">
+                            Track Status:
+                          </span>
+                          <p className="text-gray-600 mt-1">
+                            {trackingData.data.track_status}
+                          </p>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="font-semibold">
+                        <div>
+                          <span className="font-semibold text-gray-700">
                             Shipment Status:
                           </span>
-                          <span>{trackingData.data.shipment_status}</span>
+                          <p className="text-gray-600 mt-1">
+                            {trackingData.data.shipment_status}
+                          </p>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="font-semibold">Return Status:</span>
-                          <span>
-                            {trackingData.data.is_return ? "Yes" : "No"}
+                        <div>
+                          <span className="font-semibold text-gray-700">
+                            Return Status:
                           </span>
+                          <p className="text-gray-600 mt-1">
+                            {trackingData.data.is_return ? (
+                              <span className="text-red-600 font-medium">
+                                Return Requested
+                              </span>
+                            ) : (
+                              <span className="text-green-600 font-medium">
+                                No Return
+                              </span>
+                            )}
+                          </p>
                         </div>
                       </div>
                     </div>
                   )}
 
                   {/* User Info */}
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <h3 className="text-base font-bold text-gray-800 mb-3">
+                  <div className="bg-purple-50 border border-purple-200 rounded-xl p-5">
+                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                      <CreditCard size={20} className="text-purple-600" />
                       User Information
                     </h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="font-semibold">User ID:</span>
-                        <span>{trackingData.user_id || "N/A"}</span>
-                      </div>
+                    <div className="text-sm">
+                      <span className="font-semibold text-gray-700">
+                        User ID:
+                      </span>
+                      <p className="text-gray-600 mt-1 font-mono">
+                        {trackingData.user_id || "N/A"}
+                      </p>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="text-center p-6">
-                  <p className="text-gray-500">No tracking data available.</p>
+                <div className="text-center py-12">
+                  <div className="bg-gray-50 p-6 rounded-xl">
+                    <Package size={48} className="text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500 text-lg font-medium mb-2">
+                      No tracking data available
+                    </p>
+                    <p className="text-gray-400 text-sm">
+                      Tracking information will be available once your order is
+                      processed
+                    </p>
+                  </div>
                 </div>
               )}
 
               {/* Close Button */}
-              <Button
-                onClick={() => setShowTrackingModal(false)}
-                value="Close"
-                color="secondary"
-                className="w-full px-4 py-3 text-sm font-semibold rounded-xl border-2 hover:border-gray-400 transition-all mt-6"
-              />
+              <div className="sticky bottom-0 bg-white pt-6 mt-6 border-t border-gray-200">
+                <Button
+                  onClick={() => setShowTrackingModal(false)}
+                  value="Close Tracking"
+                  color="secondary"
+                  className="w-full px-4 py-3 text-sm font-semibold rounded-xl border-2 hover:border-gray-400 transition-all"
+                />
+              </div>
             </div>
           </div>
         </div>
