@@ -171,9 +171,9 @@ const Checkout = () => {
     };
 
     const orderSummary = {
-      totalPrice: Number(totalPrice),
+      totalPrice: 1,
       gstPrice: Number(formData.gstPrice),
-      shippingCost: Number(formData.shippingCost),
+      shippingCost: 0,
       coupon: { code: null, discountAmount: 0 },
     };
 
