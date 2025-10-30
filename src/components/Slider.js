@@ -43,7 +43,7 @@ const Slider = () => {
 
   // Handle product click - navigate to product details
   const handleProductClick = (productId) => {
-    navigate(`/productDetails/₹{productId}`);
+    navigate(`/productDetails/${productId}`);
   };
 
   // ✅ Handle touch and mouse swipe
@@ -97,7 +97,7 @@ const Slider = () => {
             <div
               className="flex transition-transform duration-700 ease-in-out select-none"
               style={{
-                transform: `translateX(-₹{currentIndex * 250}px)`,
+                transform: `translateX(-${currentIndex * 250}px)`,
               }}
               onTransitionEnd={handleTransitionEnd}
               ref={containerRef}
@@ -134,7 +134,7 @@ const Slider = () => {
               {/* Duplicates for infinite scroll effect */}
               {books.map((product, index) => (
                 <div
-                  key={`duplicate-₹{product._id || index}`}
+                  key={`duplicate-${product._id || index}`}
                   className="shrink-0 mx-2 cursor-pointer flex flex-col items-center"
                   onClick={() => handleProductClick(product._id)}
                 >
@@ -160,7 +160,7 @@ const Slider = () => {
           {books.length > 1 && (
             <div className="hidden md:block lg:block">
               <div
-                className={` absolute top-[45%] left-0 right-0 flex justify-between items-center transition-opacity duration-500 ₹{
+                className={` absolute top-[45%] left-0 right-0 flex justify-between items-center transition-opacity duration-500 ${
                   isDivHover ? "opacity-100" : "opacity-0"
                 }`}
               >
