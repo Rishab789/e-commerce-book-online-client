@@ -16,21 +16,29 @@ const App = () => {
   };
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       <div>
         <AreYouSure
-          className={`absolute top-1/4 left-16 md:left-1/3 lg:left-1/3 z-20 ${
+          className={`fixed top-1/4 left-4 md:left-1/3 lg:left-1/3 z-50 ${
             isLogOut ? "block" : "hidden"
-          } `}
+          }`}
           setIsLogOut={setIsLogOut}
         />
       </div>
 
-      <div className={`${isLogOut ? "blur-sm" : "blur-0"}`}>
-        <TopBar onLogoutClick={logOuthandler} />
-        <SearchLogoCart />
-        <Header />
-        <Outlet />
+      <div className={`flex-1 ${isLogOut ? "blur-sm" : "blur-0"}`}>
+        {/* Sticky Header Section */}
+        <div className="md:sticky lg:sticky top-0 z-40 bg-white shadow-sm">
+          <TopBar onLogoutClick={logOuthandler} />
+          <SearchLogoCart />
+          <Header />
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1">
+          <Outlet />
+        </div>
+
         <Footer />
       </div>
     </div>

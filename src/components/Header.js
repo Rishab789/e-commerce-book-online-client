@@ -104,13 +104,16 @@ const Header = () => {
                       </span>
                     </div>
                   </li>
-
                   <li className="flex gap-1 items-center cursor-pointer">
+                    <Link to="/ebook">Govt. Exams Prep Books Kit</Link>
+                  </li>
+
+                  {/* <li className="flex gap-1 items-center cursor-pointer">
                     <Link to="/ebook">e-BOOKS</Link>
                   </li>
                   <li>
                     <a href="/blogs">BLOG</a>
-                  </li>
+                  </li> */}
                 </ul>
               </nav>
             </div>

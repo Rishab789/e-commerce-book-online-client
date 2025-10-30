@@ -9,10 +9,13 @@ import Newsletter from "../components/Newsletter";
 import Review from "../components/Review";
 import Blog from "../components/Blog";
 import AreYouSure from "../modals/AreYouSure";
+import NewArrivals from "../components/NewArrivals";
+import DiscountStrip from "../components/DiscountStrip";
 
 const Home = () => {
   return (
     <div>
+      <DiscountStrip />
       <Info />
       <Hero />
       <TopInteresting />
@@ -21,7 +24,8 @@ const Home = () => {
       <FeaturedBooks />
       <Newsletter />
       <Review />
-      <Blog />
+      <NewArrivals />
+      {/* <Blog /> */}
     </div>
   );
 };
