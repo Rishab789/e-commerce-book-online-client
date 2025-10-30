@@ -18,6 +18,12 @@ const SearchLogoCart = () => {
   // Track failed images to prevent infinite retry loops
   const [failedImages, setFailedImages] = useState(new Set());
 
+  // Auto-writing placeholder states
+  const [placeholderText, setPlaceholderText] = useState("");
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [typingSpeed, setTypingSpeed] = useState(150);
+
   const { userId } = useContext(LogInContext);
   const { allBooks, eBooks } = useContext(ProductContext);
   const { products } = useContext(CartContext);
@@ -26,9 +32,47 @@ const SearchLogoCart = () => {
   const resultsRef = useRef(null);
   const url = process.env.REACT_APP_URL;
 
+  // Auto-writing placeholder text options
+  const placeholderTexts = [
+    "Search for mystery novels...",
+    "Find your next favorite book...",
+    "Discover new authors...",
+    "Browse by category...",
+    "Search Entire Book Store Here",
+  ];
+
   // Default placeholder image (use a data URL or a reliable placeholder service)
   const defaultPlaceholder =
     "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zMCAyNUM0MSAyNSA1MCAzNCA1MCA0NVM0MSA1NSAzMCA1NUMxOSA1NSAxMCA0NiAxMCAzNUMxMCAyNiAxOSAxNyAzMCAxN1oiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+";
+
+  // Auto-writing placeholder effect
+  useEffect(() => {
+    const currentText = placeholderTexts[placeholderIndex];
+
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        // Typing mode
+        if (placeholderText === currentText) {
+          // Pause at the end of typing
+          setTimeout(() => setIsDeleting(true), 1000);
+        } else {
+          setPlaceholderText(currentText.slice(0, placeholderText.length + 1));
+        }
+      } else {
+        // Deleting mode
+        if (placeholderText === "") {
+          setIsDeleting(false);
+          setPlaceholderIndex((prev) => (prev + 1) % placeholderTexts.length);
+          setTypingSpeed(150);
+        } else {
+          setPlaceholderText(currentText.slice(0, placeholderText.length - 1));
+          setTypingSpeed(50); // Faster deletion
+        }
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [placeholderText, isDeleting, placeholderIndex, typingSpeed]);
 
   const updateCartLength = () => {
     if (!userId) return;
@@ -190,18 +234,18 @@ const SearchLogoCart = () => {
   };
 
   return (
-    <section className="w-full lg:relative">
-      <div className="flex flex-col md:flex-row lg:flex-row justify-between items-center pt-10 pb-10 md:pt-0 md:pb-0 lg:pt-0 lg:pb-0 pl-10 pr-10 h-64 md:h-44 lg:h-44">
+    <section className="w-full lg:relative bg-[#FFE619]">
+      <div className="flex flex-col md:flex-row lg:flex-row justify-between items-center pt-10 pb-10 md:pt-0 md:pb-0 lg:pt-0 lg:pb-0 pl-10 pr-10 h-30 md:h-36 lg:h-36">
         {/* Enhanced Search */}
         <div className="flex w-full md:w-56 lg:w-80 relative" ref={searchRef}>
           <form onSubmit={handleSearchSubmit} className="flex w-full">
             <div className="relative w-full">
               <input
                 type="text"
-                placeholder="Search Entire Store Here"
+                placeholder={placeholderText}
                 value={searchQuery}
                 onChange={handleInputChange}
-                className="rounded-tl rounded border border-black h-10 bg-[#ffffff] pl-2 pr-8 w-full focus:outline-none focus:ring-2 focus:ring-secondary-color"
+                className="rounded-tl rounded rufina1 h-10 bg-[#ffffff] pl-2 pr-8 w-full text-xs"
                 id="search"
               />
               {searchQuery && (

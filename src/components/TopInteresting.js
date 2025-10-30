@@ -142,7 +142,7 @@ const TopInteresting = () => {
                     <Button value="Buy Now" color="sign-color" />
                   </div> */}
                   <p className="text-center rufina1">{title.slice(0, 20)}</p>
-                  <p className="text-center rufina1">${price}</p>
+                  <p className="text-center rufina1">₹{price}</p>
                 </div>
               ))}
 

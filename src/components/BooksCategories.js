@@ -41,24 +41,26 @@ const BooksCategories = () => {
         </p>
       </div>
       {/* icon grid and list  */}
-      <div className="flex gap-3 border-b-[2px] border-black pb-2 mb-10">
+      <div className="flex gap-3 border-b-[2px] border-black pb-2 mb-10  ">
         <div
           onClick={() => handleClick("grid")}
           className={`${
             isGrid ? "active" : ""
-          } flex gap-2 items-center border-r-[2px] border-black pr-2 cursor-pointer hover:text-orange-400 duration-200 `}
+          }  flex gap-2 items-center  pr-2 cursor-pointer hover:text-orange-400 duration-200 `}
         >
           <IoGrid className="text-xl md:text-4xl lg:text-4xl " />
           <span className="text-xl   md:text-3xl  lg:text-3xl">GRID</span>
         </div>
-        <div
-          onClick={() => handleClick("list")}
-          className={`${
-            isGrid ? "" : "active"
-          } flex gap-2 cursor-pointer items-center  hover:text-orange-400 duration-200`}
-        >
-          <FaList className="text-xl md:text-4xl lg:text-4xl" />
-          <span className="text-xl   md:text-3xl  lg:text-3xl">LIST</span>
+        <div className="hidden md:block lg:block">
+          <div
+            onClick={() => handleClick("list")}
+            className={`${
+              isGrid ? "" : "active"
+            } flex gap-2 cursor-pointer items-center  hover:text-orange-400 duration-200`}
+          >
+            <FaList className="text-xl md:text-4xl lg:text-4xl " />
+            <span className="text-xl   md:text-3xl  lg:text-3xl">LIST</span>
+          </div>
         </div>
       </div>
 

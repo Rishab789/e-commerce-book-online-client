@@ -114,7 +114,7 @@ const FeaturedBooks = () => {
         </div>
 
         <div
-          className={`pt-10 grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 transition-all duration-300 ease-in-out ${animationClass} select-none`}
+          className={`pt-10 grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 transition-all duration-300 ease-in-out ₹{animationClass} select-none`}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
@@ -124,11 +124,11 @@ const FeaturedBooks = () => {
         >
           {onUI.map((book, id) => (
             <div key={id} className="flex flex-col items-center">
-              <Link to={`/productDetails/${book._id}`}>
+              <Link to={`/productDetails/₹{book._id}`}>
                 <img src={book.image} alt={book.title} width={180} />
               </Link>
               <p className="text-center rufina1">{book.title}</p>
-              <p className="text-center rufina1">${book.price}</p>
+              <p className="text-center rufina1">₹{book.price}</p>
             </div>
           ))}
         </div>
@@ -136,7 +136,7 @@ const FeaturedBooks = () => {
         {/* Navigation arrows */}
         <div className="hidden md:block lg:block">
           <div
-            className={`  absolute top-[45%] left-0 right-0 flex justify-between items-center px-10 transition-opacity duration-500 ${
+            className={`  absolute top-[45%] left-0 right-0 flex justify-between items-center px-10 transition-opacity duration-500 ₹{
               isDivHover ? "opacity-100" : "opacity-0"
             }`}
           >
