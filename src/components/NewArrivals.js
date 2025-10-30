@@ -176,9 +176,6 @@ const NewArrivals = () => {
                     }
                     alt={book.title || book.name}
                     className="book-image"
-                    onError={(e) => {
-                      e.target.src = "/default-book-cover.jpg";
-                    }}
                   />
                 </div>
 
