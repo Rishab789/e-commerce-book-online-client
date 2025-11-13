@@ -234,7 +234,7 @@ const SearchLogoCart = () => {
   };
 
   return (
-    <section className="w-full lg:relative bg-[#FFE619]">
+    <section className="w-full lg:relative bg-[#F5C542]">
       <div className="flex flex-col md:flex-row lg:flex-row justify-between items-center pt-10 pb-10 md:pt-0 md:pb-0 lg:pt-0 lg:pb-0 pl-10 pr-10 h-30 md:h-36 lg:h-36">
         {/* Enhanced Search */}
         <div className="flex w-full md:w-56 lg:w-80 relative" ref={searchRef}>
